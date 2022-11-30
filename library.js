@@ -104,7 +104,8 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 		// middleware.admin.checkPrivileges,	// use this to restrict the route to administrators
 	];
 
-	routeHelpers.setupApiRoute(router, 'post', '/pr_EmailRegReq', middlewares, async (req, res) => {
+	// Don't use routeHelpers.setupApiRoute() since we don't want bear authentication here
+	router.post('/pr_EmailRegReq/:sk', async (req, res) => {
 		// helpers.formatApiResponse() will generate predefined error if third argument left null
 		const { register_token: pr_register_token,
 			register_sk: pr_sk_base64,
@@ -117,23 +118,23 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 		}
 		const { headers, envelope } = req.body
 		if (!headers || !envelope) {
-			return helpers.formatApiResponse(403, res, null)
+			return helpers.formatApiResponse(403, res, Error("No headers or envelope"))
 		}
 		const { from, helo_domain, remote_ip, tls, tls_cipher } = envelope
 		if (!tls || (tls_cipher !== "TLSv1.3" && tls_cipher !== "TLSv1.2")) {
-			return helpers.formatApiResponse(403, res, null)
+			return helpers.formatApiResponse(403, res, Error("Invalid TLS cipher"))
 		}
 		if (!net.isIP(remote_ip)) {
-			return helpers.formatApiResponse(403, res, null)
+			return helpers.formatApiResponse(403, res, Error("Not an ip addr"))
 		}
 		// Mandatory reverse DNS check. This must resolves to helo_domain
 		try {
 			const reverse_domain = await dns.promises.reverse(remote_ip)
 			if (reverse_domain !== helo_domain) {
-				return helpers.formatApiResponse(403, res, null)
+				return helpers.formatApiResponse(403, res, Error(`Reverse DNS check failed: ip ${remote_ip} resolves to ${reverse_domain}, which does not match ${helo_domain}`))
 			}
 		} catch (e) {
-			return helpers.formatApiResponse(403, res, null)
+			return helpers.formatApiResponse(403, res, Error(`Reverse DNS check failed: ${e}`))
 		}
 		// Verify helo_domain.
 		// Currently subdomains are unconditionally trusted. This is insecure in theory, 
@@ -151,12 +152,12 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 			}
 		}
 		if (!is_valid_helo_domain) {
-			return helpers.formatApiResponse(403, res, null)
+			return helpers.formatApiResponse(403, res, Error("Invalid HELO domain"))
 		}
 		// Verify "From" domain, which must match its helo_domain
 		const from_domain = from.substring(from.indexOf("@") + 1)
 		if (from_domain !== pr_from_domain) {
-			return helpers.formatApiResponse(403, res, null)
+			return helpers.formatApiResponse(403, res, Error("From domain do not match HELO domain"))
 		}
 		// reverse DNS check, helo_domain and "From" domain check passed
 		// Check whether email address is already used
