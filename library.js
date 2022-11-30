@@ -67,10 +67,11 @@ plugin.init = async (params) => {
  *	}
  */
 
-function tryDecrypt(body) {
+function tryDecrypt(body, pr_sk_base64) {
 	const PREFIX = 'USeRnaMe\n'
 	try {
-		const pr_sk = crypto.createPrivateKey(meta.settings.get("pr_register_sk"))
+		const pr_sk_str = Buffer.from(pr_sk_base64, 'base64')
+		const pr_sk = crypto.createPrivateKey(pr_sk_str)
 		// Buffer.from(string) returns empty buffer instead of throwing on invalid base64 encodings
 		const regreq_enc_buf = Buffer.from(body, 'base64')
 		const regreq_dec_buf = crypto.privateDecrypt(pr_sk, regreq_enc_buf)
@@ -81,15 +82,15 @@ function tryDecrypt(body) {
 		regreq = regreq.substring(PREFIX.length)
 		return { "decres": "2xx", "regreq": regreq }
 	} catch (e) {
-		// This should only comes from crypto.createPrivateKey(), which means pr_register_sk is invalid
+		// This should only comes from crypto.createPrivateKey(), which means pr_sk_base64 is invalid
 		return { "decres": "5xx", "regreq": null }
 	}
 }
 
-function tryDecryptAll(arr) {
+function tryDecryptAll(arr, pr_sk_base64) {
 	let res = {}
 	for (body of arr) {
-		res = tryDecrypt(body)
+		res = tryDecrypt(body, pr_sk_base64)
 		if (res.decres !== "4xx") {
 			break
 		}
@@ -105,7 +106,11 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 
 	routeHelpers.setupApiRoute(router, 'post', '/pr_EmailRegReq', middlewares, async (req, res) => {
 		// helpers.formatApiResponse() will generate predefined error if third argument left null
-		const pr_register_token = meta.settings.get("pr_register_token")
+		const { register_token: pr_register_token,
+			register_sk: pr_sk_base64,
+			register_helo_domains: pr_helo_domain_str,
+			register_from_domains: pr_from_domain_str
+		} = await meta.settings.get('quickstart')
 		const skreq = req.params.sk || ""
 		if (pr_register_token !== skreq) {
 			return helpers.formatApiResponse(404, res, null)
@@ -162,7 +167,7 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 		const subject = headers.subject || ""
 		const plain = req.body.plain || ""
 		// Try plaintext (email body) first, if failed try subject
-		let { decres, regreq } = tryDecryptAll([plain, subject])
+		let { decres, regreq } = tryDecryptAll([plain, subject], pr_sk_base64)
 		if (decres === "5xx") {
 			return helpers.formatApiResponse(502, res, null)
 		} else if (decres !== "2xx") {
