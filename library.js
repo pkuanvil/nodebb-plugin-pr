@@ -5,7 +5,8 @@ const winston = require.main.require('winston');
 const net = require.main.require('net')
 const dns = require.main.require('dns')
 const crypto = require.main.require('crypto')
-const Buffer = require.main.require('buffer')
+const buffer = require.main.require('buffer')
+const Buffer = buffer.Buffer
 
 const meta = require.main.require('./src/meta');
 
@@ -69,10 +70,17 @@ plugin.init = async (params) => {
 
 function tryDecrypt(body, pr_sk_base64) {
 	const PREFIX = 'USeRnaMe\n'
+	let pr_sk
 	try {
 		const pr_sk_str = Buffer.from(pr_sk_base64, 'base64')
-		const pr_sk = crypto.createPrivateKey(pr_sk_str)
+		pr_sk = crypto.createPrivateKey(pr_sk_str)
 		// Buffer.from(string) returns empty buffer instead of throwing on invalid base64 encodings
+	} catch (e) {
+		// This should only comes from crypto.createPrivateKey(), which means pr_sk_base64 is invalid
+		console.log(e)
+		return { "decres": "5xx", "regreq": null }
+	}
+	try {
 		const regreq_enc_buf = Buffer.from(body, 'base64')
 		const regreq_dec_buf = crypto.privateDecrypt(pr_sk, regreq_enc_buf)
 		let regreq = regreq_dec_buf.toString()
@@ -82,8 +90,8 @@ function tryDecrypt(body, pr_sk_base64) {
 		regreq = regreq.substring(PREFIX.length)
 		return { "decres": "2xx", "regreq": regreq }
 	} catch (e) {
-		// This should only comes from crypto.createPrivateKey(), which means pr_sk_base64 is invalid
-		return { "decres": "5xx", "regreq": null }
+		// Decryption error
+		return { "decres": "4xx", "regreq": null }
 	}
 }
 
