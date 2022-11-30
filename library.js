@@ -130,7 +130,7 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 		// Mandatory reverse DNS check. This must resolves to helo_domain
 		try {
 			const reverse_domain = await dns.promises.reverse(remote_ip)
-			if (reverse_domain !== helo_domain) {
+			if (!reverse_domain.includes(helo_domain)) {
 				return helpers.formatApiResponse(403, res, Error(`Reverse DNS check failed: ip ${remote_ip} resolves to ${reverse_domain}, which does not match ${helo_domain}`))
 			}
 		} catch (e) {
