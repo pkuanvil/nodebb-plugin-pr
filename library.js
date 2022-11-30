@@ -89,7 +89,7 @@ function tryDecrypt(body, pr_sk_base64) {
 
 function tryDecryptAll(arr, pr_sk_base64) {
 	let res = {}
-	for (body of arr) {
+	for (let body of arr) {
 		res = tryDecrypt(body, pr_sk_base64)
 		if (res.decres !== "4xx") {
 			break
