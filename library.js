@@ -115,6 +115,13 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 	];
 
 	// Don't use routeHelpers.setupApiRoute() since we don't want bear authentication token or csrf token here
+	router.get('/pr_pubkey', async (req, res) => {
+		const pr_sk_base64 = await meta.settings.getOne('quickstart', 'register_sk')
+		const pr_sk_str = Buffer.from(pr_sk_base64, 'base64')
+		const pr_pubkey = crypto.createPublicKey(pr_sk_str)
+		const pr_pubkey_str = pr_pubkey.export({ type: "spki", format: "pem" })
+		res.status(200).type('text/plain').send(pr_pubkey_str)
+	})
 	router.post('/pr_EmailRegReq/:sk', async (req, res) => {
 		// helpers.formatApiResponse() will generate predefined error if third argument left null
 		const { register_token: pr_register_token,
@@ -209,7 +216,7 @@ plugin.addAdminNavigation = (header) => {
 };
 
 plugin.regCheck = async (payload) => {
-	let {userData} = payload
+	let { userData } = payload
 	const regreq = userData.username + '\n' + userData.password
 	if (! await db.isSetMember("pr:regreq", regreq)) {
 		throw new Error("The Server has not received your register request.")
