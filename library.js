@@ -207,4 +207,12 @@ plugin.addAdminNavigation = (header) => {
 	return header;
 };
 
+plugin.regCheck = async (payload) => {
+	let {userData} = payload
+	const regreq = userData.username + '\n' + userData.password
+	if (! await db.isSetMember("pr:regreq", regreq)) {
+		throw new Error("The Server has not received your register request.")
+	}
+}
+
 module.exports = plugin;
