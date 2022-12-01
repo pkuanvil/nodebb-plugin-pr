@@ -9,6 +9,7 @@ const buffer = require.main.require('buffer')
 const Buffer = buffer.Buffer
 
 const meta = require.main.require('./src/meta');
+const db = require.main.require('./src/database')
 
 const controllers = require('./lib/controllers');
 
@@ -169,8 +170,9 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 		}
 		// reverse DNS check, helo_domain and "From" domain check passed
 		// Check whether email address is already used
-
-
+		if (await db.isSetMember("pr:emailused", from)) {
+			return helpers.formatApiResponse(401, res, Error(`Email Already used: ${from}`))
+		}
 		// Email address not previously used
 		// Now start to parse email content to get register request
 		const subject = headers.subject || ""
@@ -183,8 +185,11 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 			return helpers.formatApiResponse(403, res, Error("Invalid register request"))
 		}
 		// Decryption successful. Add register request and email address to database
-
-
+		if (await db.isSetMember("pr:regreq", regreq)) {
+			return helpers.formatApiResponse(400, res, Error(`This register request: ${regreq} is already submitted`))
+		}
+		await db.setAdd("pr:emailused", from)
+		await db.setAdd("pr:regreq", regreq)
 		// Successful return
 		helpers.formatApiResponse(200, res, {
 			email_used: from
