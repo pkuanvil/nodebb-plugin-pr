@@ -75,6 +75,7 @@ function tryDecrypt(body, pr_sk_base64) {
 	try {
 		const pr_sk_str = Buffer.from(pr_sk_base64, 'base64')
 		pr_sk = crypto.createPrivateKey(pr_sk_str)
+		pr_sk.oaepHash = 'sha256'
 		// Buffer.from(string) returns empty buffer instead of throwing on invalid base64 encodings
 	} catch (e) {
 		// This should only comes from crypto.createPrivateKey(), which means pr_sk_base64 is invalid
@@ -113,7 +114,7 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 		// middleware.admin.checkPrivileges,	// use this to restrict the route to administrators
 	];
 
-	// Don't use routeHelpers.setupApiRoute() since we don't want bear authentication here
+	// Don't use routeHelpers.setupApiRoute() since we don't want bear authentication token or csrf token here
 	router.post('/pr_EmailRegReq/:sk', async (req, res) => {
 		// helpers.formatApiResponse() will generate predefined error if third argument left null
 		const { register_token: pr_register_token,
