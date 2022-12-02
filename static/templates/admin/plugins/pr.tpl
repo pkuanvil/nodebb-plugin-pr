@@ -11,6 +11,10 @@
 				<input type="text" id="register_token" name="register_token" title="PR Register Token" class="form-control" placeholder="thisistopsecretneverleakthisoranyonecansendregiseremail">
 			</div>
 			<div class="mb-3">
+				<label class="form-label" for="register_email">PR Register Email</label>
+				<input type="text" id="register_email" name="register_email" title="PR Register Email" class="form-control" placeholder="xxxxxx@email.com">
+			</div>
+			<div class="mb-3">
 				<label class="form-label" for="register_helo_domains">PR Register HELO Domains</label>
 				<input type="text" id="register_helo_domains" name="register_helo_domains" title="PR Register Domains" class="form-control" placeholder="domain1.com;sub1.domain2.com">
 			</div>

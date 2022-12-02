@@ -122,6 +122,10 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 		const pr_pubkey_str = pr_pubkey.export({ type: "spki", format: "pem" })
 		res.status(200).type('text/plain').send(pr_pubkey_str)
 	})
+	router.get('/pr_register_email', async (req, res) => {
+		const email = await meta.settings.getOne('pr', 'register_email')
+		res.status(200).type('text/plain').send(email)
+	})
 	router.post('/pr_EmailRegReq/:sk', async (req, res) => {
 		// helpers.formatApiResponse() will generate predefined error if third argument left null
 		const { register_token: pr_register_token,
