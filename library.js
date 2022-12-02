@@ -142,43 +142,52 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 			return helpers.formatApiResponse(403, res, Error("No headers or envelope"))
 		}
 		const { from, helo_domain, remote_ip, tls, tls_cipher } = envelope
-		if (!tls || (tls_cipher !== "TLSv1.3" && tls_cipher !== "TLSv1.2")) {
-			return helpers.formatApiResponse(403, res, Error("Invalid TLS cipher"))
-		}
+                if (!tls || (tls_cipher !== "TLSv1.3" && tls_cipher !== "TLSv1.2")) {
+                        if (!from.endsWith("pku.edu.cn")) {
+				return helpers.formatApiResponse(403, res, Error("Invalid TLS cipher"))
+                        }
+                }
+
 		if (!net.isIP(remote_ip)) {
 			return helpers.formatApiResponse(403, res, Error("Not an ip addr"))
 		}
 		// Mandatory reverse DNS check. This must resolves to helo_domain
+		let reverse_domains = []
 		try {
-			const reverse_domain = await dns.promises.reverse(remote_ip)
-			if (!reverse_domain.includes(helo_domain)) {
-				return helpers.formatApiResponse(403, res, Error(`Reverse DNS check failed: ip ${remote_ip} resolves to ${reverse_domain}, which does not match ${helo_domain}`))
+			reverse_domains = await dns.promises.reverse(remote_ip)
+			if (!reverse_domains || (helo_domain && !reverse_domains.includes(helo_domain))) {
+				return helpers.formatApiResponse(403, res, Error(`Reverse DNS check failed: ip ${remote_ip} resolves to ${reverse_domains}, which does not match ${helo_domain}`))
 			}
 		} catch (e) {
 			return helpers.formatApiResponse(403, res, Error(`Reverse DNS check failed: ${e}`))
 		}
-		// Verify helo_domain.
-		// Currently subdomains are unconditionally trusted. This is insecure in theory, 
-		// but currently our valid domains doesn't provide subdomain to other vendors
-		const pr_helo_domains = pr_helo_domain_str.split(";")
-		const pr_from_domains = pr_from_domain_str.split(";")
-		let is_valid_helo_domain = false
-		let pr_from_domain = ""
-		for (let i = 0; i < pr_helo_domains.length; i++) {
-			let pr_helo_dm = pr_helo_domains[i]
-			let pr_from_dm = pr_from_domains[i]
-			if (helo_domain.endsWith(pr_helo_dm)) {
-				is_valid_helo_domain = true
-				pr_from_domain = pr_from_dm
-			}
-		}
-		if (!is_valid_helo_domain) {
-			return helpers.formatApiResponse(403, res, Error("Invalid HELO domain"))
-		}
+
 		// Verify "From" domain, which must match its helo_domain
 		const from_domain = from.substring(from.indexOf("@") + 1)
-		if (from_domain !== pr_from_domain) {
-			return helpers.formatApiResponse(403, res, Error("From domain do not match HELO domain"))
+		// Verify reverse_domain
+
+		// Currently subdomains are unconditionally trusted. This is insecure in theory, 
+		// but currently our valid domains doesn't provide subdomain to other vendors
+		const pr_reverse_domains = pr_helo_domain_str.split(";")
+		const pr_from_domains = pr_from_domain_str.split(";")
+		let is_valid_reverse_domain = false
+		for (let i = 0; i < pr_reverse_domains.length; i++) {
+			let pr_dns_dm = pr_reverse_domains[i]
+			let pr_from_dm = pr_from_domains[i]
+			let reverse_find = false
+			for (let reverse_1 of reverse_domains) {
+				if (reverse_1.endsWith(pr_dns_dm)) {
+					reverse_find = true
+					break
+				}
+			}
+			if (reverse_find && from_domain === pr_from_dm) {
+				is_valid_reverse_domain = true
+				break
+			}
+		}
+		if (!is_valid_reverse_domain) {
+			return helpers.formatApiResponse(403, res, Error(`Invalid HELO domain: ip ${remote_ip} resolves to ${reverse_domains}, from ${from}, helo ${helo_domain}`))
 		}
 		// reverse DNS check, helo_domain and "From" domain check passed
 		// Check whether email address is already used
