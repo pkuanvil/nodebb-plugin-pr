@@ -1,4 +1,4 @@
-<form role="form" class="quickstart-settings">
+<form role="form" class="pr-settings">
 	<div class="row mb-4">
 		<div class="col-sm-2 col-12 settings-header">PR Register Request Settings</div>
 		<div class="col-sm-10 col-12">
@@ -25,7 +25,7 @@
 		<div class="col-sm-10 col-12">
 			<p class="lead">
 				Adjust these settings. You can then retrieve these settings in code via:
-				<code>meta.settings.get('quickstart', function(err, settings) {...});</code>
+				<code>meta.settings.get('pr', function(err, settings) {...});</code>
 			</p>
 			<div class="mb-3">
 				<label class="form-label" for="setting1">Setting 1</label>
@@ -63,7 +63,7 @@
 	<div class="row mb-4">
 		<div class="col-sm-2 col-12 settings-header">Sorted List</div>
 		<div class="col-sm-10 col-12">
-			<div class="mb-3" data-type="sorted-list" data-sorted-list="sample-list" data-item-template="admin/plugins/quickstart/partials/sorted-list/item" data-form-template="admin/plugins/quickstart/partials/sorted-list/form">
+			<div class="mb-3" data-type="sorted-list" data-sorted-list="sample-list" data-item-template="admin/plugins/pr/partials/sorted-list/item" data-form-template="admin/plugins/pr/partials/sorted-list/form">
 				<ul data-type="list" class="list-group mb-2"></ul>
 				<button type="button" data-type="add" class="btn btn-info">Add Item</button>
 			</div>

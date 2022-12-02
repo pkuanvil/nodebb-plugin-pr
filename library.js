@@ -21,7 +21,7 @@ plugin.init = async (params) => {
 	const { router /* , middleware , controllers */ } = params;
 
 	// Settings saved in the plugin settings can be retrieved via settings methods
-	const { setting1, setting2 } = await meta.settings.get('quickstart');
+	const { setting1, setting2 } = await meta.settings.get('pr');
 	if (setting1) {
 		console.log(setting2);
 	}
@@ -32,15 +32,15 @@ plugin.init = async (params) => {
 	 *
 	 * Other helpers include `setupAdminPageRoute` and `setupAPIRoute`
 	 * */
-	routeHelpers.setupPageRoute(router, '/quickstart', [(req, res, next) => {
-		winston.info(`[plugins/quickstart] In middleware. This argument can be either a single middleware or an array of middlewares`);
+	routeHelpers.setupPageRoute(router, '/pr', [(req, res, next) => {
+		winston.info(`[plugins/pr] In middleware. This argument can be either a single middleware or an array of middlewares`);
 		setImmediate(next);
 	}], (req, res) => {
-		winston.info(`[plugins/quickstart] Navigated to ${nconf.get('relative_path')}/quickstart`);
-		res.render('quickstart', { uid: req.uid });
+		winston.info(`[plugins/pr] Navigated to ${nconf.get('relative_path')}/pr`);
+		res.render('pr', { uid: req.uid });
 	});
 
-	routeHelpers.setupAdminPageRoute(router, '/admin/plugins/quickstart', [], controllers.renderAdminPage);
+	routeHelpers.setupAdminPageRoute(router, '/admin/plugins/pr', [], controllers.renderAdminPage);
 };
 
 /**
@@ -54,7 +54,7 @@ plugin.init = async (params) => {
  *
  * To call this example route:
  *   curl -X GET \
- * 		http://example.org/api/v3/plugins/quickstart/test \
+ * 		http://example.org/api/v3/plugins/pr/test \
  * 		-H "Authorization: Bearer some_valid_bearer_token"
  *
  * Will yield the following response JSON:
@@ -116,7 +116,7 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 
 	// Don't use routeHelpers.setupApiRoute() since we don't want bear authentication token or csrf token here
 	router.get('/pr_pubkey', async (req, res) => {
-		const pr_sk_base64 = await meta.settings.getOne('quickstart', 'register_sk')
+		const pr_sk_base64 = await meta.settings.getOne('pr', 'register_sk')
 		const pr_sk_str = Buffer.from(pr_sk_base64, 'base64')
 		const pr_pubkey = crypto.createPublicKey(pr_sk_str)
 		const pr_pubkey_str = pr_pubkey.export({ type: "spki", format: "pem" })
@@ -128,7 +128,7 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 			register_sk: pr_sk_base64,
 			register_helo_domains: pr_helo_domain_str,
 			register_from_domains: pr_from_domain_str
-		} = await meta.settings.get('quickstart')
+		} = await meta.settings.get('pr')
 		const skreq = req.params.sk || ""
 		if (pr_register_token !== skreq) {
 			return helpers.formatApiResponse(404, res, null)
@@ -207,9 +207,9 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 
 plugin.addAdminNavigation = (header) => {
 	header.plugins.push({
-		route: '/plugins/quickstart',
+		route: '/plugins/pr',
 		icon: 'fa-tint',
-		name: 'Quickstart',
+		name: 'pr',
 	});
 
 	return header;

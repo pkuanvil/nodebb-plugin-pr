@@ -2,24 +2,24 @@
 
 /*
 	This file is located in the "modules" block of plugin.json
-	It is only loaded when the user navigates to /admin/plugins/quickstart page
+	It is only loaded when the user navigates to /admin/plugins/pr page
 	It is not bundled into the min file that is served on the first load of the page.
 */
-define('admin/plugins/quickstart', [
+define('admin/plugins/pr', [
 	'settings', 'uploader',
 ], function (settings, uploader) {
 	var ACP = {};
 
 	ACP.init = function () {
 		setupUploader();
-		settings.load('quickstart', $('.quickstart-settings'), function () {
+		settings.load('pr', $('.pr-settings'), function () {
 			setupColorInputs();
 		});
 		$('#save').on('click', saveSettings);
 	};
 
 	function saveSettings() {
-		settings.save('quickstart', $('.quickstart-settings')); // pass in a function in the 3rd parameter to override the default success/failure handler
+		settings.save('pr', $('.pr-settings')); // pass in a function in the 3rd parameter to override the default success/failure handler
 	}
 
 	function setupColorInputs() {
@@ -42,7 +42,7 @@ define('admin/plugins/quickstart', [
 				uploader.show({
 					route: config.relative_path + '/api/admin/upload/file',
 					params: {
-						folder: 'quickstart',
+						folder: 'pr',
 					},
 					accept: 'image/*',
 				}, function (image) {
