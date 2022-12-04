@@ -259,7 +259,23 @@ plugin.regCheck = async (payload) => {
 	const regreq = userData.username + '\n' + userData.password
 	if (! await db.isSetMember("pr:regreq", regreq)) {
 		throw new Error("The Server has not received your register request.")
+	} else if (await db.isSetMember("pr:regreq_done", regreq)) {
+		throw new Error("This register request has already been completed.")
 	}
+}
+
+plugin.interstitial = async (payload) => {
+	let { req, userData } = payload
+	if (req.method !== "POST") {
+		return payload
+	}
+	// Don't activate when user POST at first page /register, when user has not yet read the "complete" page warnings
+	// Use route path instead of absolute path, because website can be prefixed
+	if (req.route.path === "/register/complete") {
+		const regreq = userData.username + '\n' + userData.password
+		await db.setAdd("pr:regreq_done", regreq)
+	}
+	return payload
 }
 
 module.exports = plugin;
