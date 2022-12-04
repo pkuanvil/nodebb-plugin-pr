@@ -108,6 +108,19 @@ function tryDecryptAll(arr, pr_sk_base64) {
 	return res
 }
 
+// prefix must not exceed 15 chars
+const PREFIX_MAX_LEN = 15
+async function pr_lock(prefix, value, error) {
+	const count = await db.incrObjectField('pr:locks', prefix.padStart(PREFIX_MAX_LEN, '0') + value)
+	if (count > 1) {
+		throw new Error(error)
+	}
+}
+
+async function pr_unlock(prefix, value) {
+	await db.deleteObjectField('pr:locks', prefix.padStart(PREFIX_MAX_LEN, '0') + value)
+}
+
 plugin.addRoutes = async ({ router, middleware, helpers }) => {
 	const middlewares = [
 		// middleware.ensureLoggedIn,		// use this if you want only registered users to call this route
@@ -190,11 +203,6 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 			return helpers.formatApiResponse(403, res, Error(`Invalid HELO domain: ip ${remote_ip} resolves to ${reverse_domains}, from ${from}, helo ${helo_domain}`))
 		}
 		// reverse DNS check, helo_domain and "From" domain check passed
-		// Check whether email address is already used
-		if (await db.isSetMember("pr:emailused", from)) {
-			return helpers.formatApiResponse(401, res, Error(`Email Already used: ${from}`))
-		}
-		// Email address not previously used
 		// Now start to parse email content to get register request
 		const subject = headers.subject || ""
 		const plain = req.body.plain || ""
@@ -206,11 +214,29 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 			return helpers.formatApiResponse(403, res, Error("Invalid register request"))
 		}
 		// Decryption successful. Add register request and email address to database
+		// Check whether email address or register request is already used
+		if (await db.isSetMember("pr:emailused", from)) {
+			return helpers.formatApiResponse(401, res, Error(`Email Already used: ${from}`))
+		}
 		if (await db.isSetMember("pr:regreq", regreq)) {
+			return helpers.formatApiResponse(400, res, Error(`This register request: ${regreq} is already submitted`))
+		}
+		// Try acquire lock
+		try {
+			await pr_lock("email:", from)
+		} catch (e) {
+			return helpers.formatApiResponse(401, res, Error(`Email Already used: ${from}`))
+		}
+		try {
+			await pr_lock("regreq:", regreq, "")
+		} catch (e) {
+			await pr_unlock("email:", from)
 			return helpers.formatApiResponse(400, res, Error(`This register request: ${regreq} is already submitted`))
 		}
 		await db.setAdd("pr:emailused", from)
 		await db.setAdd("pr:regreq", regreq)
+		await pr_unlock("regreq:", regreq)
+		await pr_unlock("email:", from)
 		// Successful return
 		helpers.formatApiResponse(200, res, {
 			email_used: from
