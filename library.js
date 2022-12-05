@@ -266,7 +266,11 @@ plugin.regCheck = async (payload) => {
 
 plugin.regAbort = async (payload) => {
 	let { req } = payload
-	const regreq = req.username + '\n' + req.password
+	let userData = req.session.registration
+	if (!userData) {
+		return
+	}
+	const regreq = userData.username + '\n' + userData.password
 	await db.setRemove("pr:regreq_done", regreq)
 }
 
