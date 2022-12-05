@@ -154,13 +154,7 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 		if (!headers || !envelope) {
 			return helpers.formatApiResponse(403, res, Error("No headers or envelope"))
 		}
-		const { from, helo_domain, remote_ip, tls, tls_cipher } = envelope
-                if (!tls || (tls_cipher !== "TLSv1.3" && tls_cipher !== "TLSv1.2")) {
-                        if (!from.endsWith("pku.edu.cn")) {
-				return helpers.formatApiResponse(403, res, Error("Invalid TLS cipher"))
-                        }
-                }
-
+		const { from, helo_domain, remote_ip } = envelope
 		if (!net.isIP(remote_ip)) {
 			return helpers.formatApiResponse(403, res, Error("Not an ip addr"))
 		}
