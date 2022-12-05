@@ -264,6 +264,12 @@ plugin.regCheck = async (payload) => {
 	}
 }
 
+plugin.regAbort = async (payload) => {
+	let { req } = payload
+	const regreq = req.username + '\n' + req.password
+	await db.setRemove("pr:regreq_done", regreq)
+}
+
 plugin.interstitial = async (payload) => {
 	let { req, userData } = payload
 	if (req.method !== "POST") {

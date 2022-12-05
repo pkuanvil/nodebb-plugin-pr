@@ -6,6 +6,7 @@
 		{ "hook": "static:api.routes", "method": "addRoutes" },
 		{ "hook": "filter:register.check", "method": "regCheck"},
 		{ "hook": "filter:register.interstitial", "method": "interstitial" },
+		{ "hook": "action:pr_register.abort", "method": "regAbort" },
 		{ "hook": "filter:admin.header.build", "method": "addAdminNavigation" }
 	],
 	"staticDirs": {
