@@ -12,6 +12,7 @@ const meta = require.main.require('./src/meta');
 const db = require.main.require('./src/database')
 
 const controllers = require('./lib/controllers');
+const hcaptcha = require('./lib/hcaptcha')
 
 const routeHelpers = require.main.require('./src/routes/helpers');
 
@@ -41,7 +42,16 @@ plugin.init = async (params) => {
 	});
 
 	routeHelpers.setupAdminPageRoute(router, '/admin/plugins/pr', [], controllers.renderAdminPage);
+	// We want default html template from renderHeader()
+	routeHelpers.setupPageRoute(router, '/captcha', [], hcaptcha.get)
+	router.post('/captcha', hcaptcha.post)
 };
+
+plugin.preload = async (params) => {
+	const { app } = params
+	// Captcha mandatory at application-wide, unless loggged in or session already has verified captcha
+	app.use(hcaptcha.needCaptcha)
+}
 
 /**
  * If you wish to add routes to NodeBB's RESTful API, listen to the `static:api.routes` hook.
@@ -247,6 +257,12 @@ plugin.addAdminNavigation = (header) => {
 
 	return header;
 };
+
+plugin.loggedOut = async (params) => {
+	const { req } = params
+	// **Requires a patched nodebb at src/controllers/authentication.js that changes req.session.destory() to req.session.regenerate()**
+	req.session.captcha = true
+}
 
 plugin.regCheck = async (payload) => {
 	let { userData } = payload

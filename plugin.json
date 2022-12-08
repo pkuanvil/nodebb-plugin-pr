@@ -3,7 +3,9 @@
 	"library": "./library.js",
 	"hooks": [
 		{ "hook": "static:app.load", "method": "init" },
+		{ "hook": "static:app.preload", "method": "preload" },
 		{ "hook": "static:api.routes", "method": "addRoutes" },
+		{ "hook": "static:user.loggedOut", "method": "loggedOut" },
 		{ "hook": "filter:register.check", "method": "regCheck"},
 		{ "hook": "filter:register.interstitial", "method": "interstitial" },
 		{ "hook": "action:pr_register.abort", "method": "regAbort" },
