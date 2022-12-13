@@ -13,6 +13,7 @@ const db = require.main.require('./src/database')
 
 const controllers = require('./lib/controllers');
 const hcaptcha = require('./lib/hcaptcha')
+const USE_HCAPTCHA = nconf.get('use_hcaptcha')
 
 const routeHelpers = require.main.require('./src/routes/helpers');
 
@@ -42,15 +43,19 @@ plugin.init = async (params) => {
 	});
 
 	routeHelpers.setupAdminPageRoute(router, '/admin/plugins/pr', [], controllers.renderAdminPage);
-	// We want default html template from renderHeader()
-	routeHelpers.setupPageRoute(router, '/captcha', [], hcaptcha.get)
-	router.post('/captcha', hcaptcha.post)
+	if (USE_HCAPTCHA) {
+		// We want default html template from renderHeader()
+		routeHelpers.setupPageRoute(router, '/captcha', [], hcaptcha.get)
+		router.post('/captcha', hcaptcha.post)
+	}
 };
 
 plugin.preload = async (params) => {
 	const { app } = params
-	// Captcha mandatory at application-wide, unless loggged in or session already has verified captcha
-	app.use(hcaptcha.needCaptcha)
+	if (USE_HCAPTCHA) {
+		// Captcha mandatory at application-wide, unless loggged in or session already has verified captcha
+		app.use(hcaptcha.needCaptcha)
+	}
 }
 
 /**
