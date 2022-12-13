@@ -6,13 +6,14 @@ const net = require.main.require('net')
 const dns = require.main.require('dns')
 const crypto = require.main.require('crypto')
 const buffer = require.main.require('buffer')
-const Buffer = buffer.Buffer
+const { Buffer } = buffer
 
 const meta = require.main.require('./src/meta');
 const db = require.main.require('./src/database')
 
 const controllers = require('./lib/controllers');
 const hcaptcha = require('./lib/hcaptcha')
+
 const USE_HCAPTCHA = nconf.get('use_hcaptcha')
 
 const routeHelpers = require.main.require('./src/routes/helpers');
@@ -95,28 +96,28 @@ function tryDecrypt(body, pr_sk_base64) {
 	} catch (e) {
 		// This should only comes from crypto.createPrivateKey(), which means pr_sk_base64 is invalid
 		console.log(e)
-		return { "decres": "5xx", "regreq": null }
+		return { decres: '5xx', regreq: null }
 	}
 	try {
 		const regreq_enc_buf = Buffer.from(body, 'base64')
 		const regreq_dec_buf = crypto.privateDecrypt(pr_sk, regreq_enc_buf)
 		let regreq = regreq_dec_buf.toString()
 		if (!regreq.startsWith(PREFIX)) {
-			return { "decres": "4xx", "regreq": null }
+			return { decres: '4xx', regreq: null }
 		}
 		regreq = regreq.substring(PREFIX.length)
-		return { "decres": "2xx", "regreq": regreq }
+		return { decres: '2xx', regreq: regreq }
 	} catch (e) {
 		// Decryption error
-		return { "decres": "4xx", "regreq": null }
+		return { decres: '4xx', regreq: null }
 	}
 }
 
 function tryDecryptAll(arr, pr_sk_base64) {
 	let res = {}
-	for (let body of arr) {
+	for (const body of arr) {
 		res = tryDecrypt(body, pr_sk_base64)
-		if (res.decres !== "4xx") {
+		if (res.decres !== '4xx') {
 			break
 		}
 	}
@@ -136,18 +137,13 @@ async function pr_unlock(prefix, value) {
 	await db.deleteObjectField('pr:locks', prefix.padStart(PREFIX_MAX_LEN, '0') + value)
 }
 
-plugin.addRoutes = async ({ router, middleware, helpers }) => {
-	const middlewares = [
-		// middleware.ensureLoggedIn,		// use this if you want only registered users to call this route
-		// middleware.admin.checkPrivileges,	// use this to restrict the route to administrators
-	];
-
+plugin.addRoutes = async ({ router, helpers }) => {
 	// Don't use routeHelpers.setupApiRoute() since we don't want bear authentication token or csrf token here
 	router.get('/pr_pubkey', async (req, res) => {
 		const pr_sk_base64 = await meta.settings.getOne('pr', 'register_sk')
 		const pr_sk_str = Buffer.from(pr_sk_base64, 'base64')
 		const pr_pubkey = crypto.createPublicKey(pr_sk_str)
-		const pr_pubkey_str = pr_pubkey.export({ type: "spki", format: "pem" })
+		const pr_pubkey_str = pr_pubkey.export({ type: 'spki', format: 'pem' })
 		res.status(200).type('text/plain').send(pr_pubkey_str)
 	})
 	router.get('/pr_register_email', async (req, res) => {
@@ -156,22 +152,23 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 	})
 	router.post('/pr_EmailRegReq/:sk', async (req, res) => {
 		// helpers.formatApiResponse() will generate predefined error if third argument left null
-		const { register_token: pr_register_token,
+		const {
+			register_token: pr_register_token,
 			register_sk: pr_sk_base64,
 			register_helo_domains: pr_helo_domain_str,
-			register_from_domains: pr_from_domain_str
+			register_from_domains: pr_from_domain_str,
 		} = await meta.settings.get('pr')
-		const skreq = req.params.sk || ""
+		const skreq = req.params.sk || ''
 		if (pr_register_token !== skreq) {
 			return helpers.formatApiResponse(404, res, null)
 		}
 		const { headers, envelope } = req.body
 		if (!headers || !envelope) {
-			return helpers.formatApiResponse(403, res, Error("No headers or envelope"))
+			return helpers.formatApiResponse(403, res, Error('No headers or envelope'))
 		}
 		const { from, helo_domain, remote_ip } = envelope
 		if (!net.isIP(remote_ip)) {
-			return helpers.formatApiResponse(403, res, Error("Not an ip addr"))
+			return helpers.formatApiResponse(403, res, Error('Not an ip addr'))
 		}
 		// Mandatory reverse DNS check. This must resolves to helo_domain
 		let reverse_domains = []
@@ -185,19 +182,19 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 		}
 
 		// Verify "From" domain, which must match its helo_domain
-		const from_domain = from.substring(from.indexOf("@") + 1)
+		const from_domain = from.substring(from.indexOf('@') + 1)
 		// Verify reverse_domain
 
-		// Currently subdomains are unconditionally trusted. This is insecure in theory, 
+		// Currently subdomains are unconditionally trusted. This is insecure in theory,
 		// but currently our valid domains doesn't provide subdomain to other vendors
-		const pr_reverse_domains = pr_helo_domain_str.split(";")
-		const pr_from_domains = pr_from_domain_str.split(";")
+		const pr_reverse_domains = pr_helo_domain_str.split(';')
+		const pr_from_domains = pr_from_domain_str.split(';')
 		let is_valid_reverse_domain = false
 		for (let i = 0; i < pr_reverse_domains.length; i++) {
-			let pr_dns_dm = pr_reverse_domains[i]
-			let pr_from_dm = pr_from_domains[i]
+			const pr_dns_dm = pr_reverse_domains[i]
+			const pr_from_dm = pr_from_domains[i]
 			let reverse_find = false
-			for (let reverse_1 of reverse_domains) {
+			for (const reverse_1 of reverse_domains) {
 				if (reverse_1.endsWith(pr_dns_dm)) {
 					reverse_find = true
 					break
@@ -213,42 +210,42 @@ plugin.addRoutes = async ({ router, middleware, helpers }) => {
 		}
 		// reverse DNS check, helo_domain and "From" domain check passed
 		// Now start to parse email content to get register request
-		const subject = headers.subject || ""
-		const plain = req.body.plain || ""
+		const subject = headers.subject || ''
+		const plain = req.body.plain || ''
 		// Try plaintext (email body) first, if failed try subject
-		let { decres, regreq } = tryDecryptAll([plain, subject], pr_sk_base64)
-		if (decres === "5xx") {
+		const { decres, regreq } = tryDecryptAll([plain, subject], pr_sk_base64)
+		if (decres === '5xx') {
 			return helpers.formatApiResponse(502, res, null)
-		} else if (decres !== "2xx") {
-			return helpers.formatApiResponse(403, res, Error("Invalid register request"))
+		} else if (decres !== '2xx') {
+			return helpers.formatApiResponse(403, res, Error('Invalid register request'))
 		}
 		// Decryption successful. Add register request and email address to database
 		// Check whether email address or register request is already used
-		if (await db.isSetMember("pr:emailused", from)) {
+		if (await db.isSetMember('pr:emailused', from)) {
 			return helpers.formatApiResponse(401, res, Error(`Email Already used: ${from}`))
 		}
-		if (await db.isSetMember("pr:regreq", regreq)) {
+		if (await db.isSetMember('pr:regreq', regreq)) {
 			return helpers.formatApiResponse(400, res, Error(`This register request: ${regreq} is already submitted`))
 		}
 		// Try acquire lock
 		try {
-			await pr_lock("email:", from)
+			await pr_lock('email:', from)
 		} catch (e) {
 			return helpers.formatApiResponse(401, res, Error(`Email Already used: ${from}`))
 		}
 		try {
-			await pr_lock("regreq:", regreq, "")
+			await pr_lock('regreq:', regreq, '')
 		} catch (e) {
-			await pr_unlock("email:", from)
+			await pr_unlock('email:', from)
 			return helpers.formatApiResponse(400, res, Error(`This register request: ${regreq} is already submitted`))
 		}
-		await db.setAdd("pr:emailused", from)
-		await db.setAdd("pr:regreq", regreq)
-		await pr_unlock("regreq:", regreq)
-		await pr_unlock("email:", from)
+		await db.setAdd('pr:emailused', from)
+		await db.setAdd('pr:regreq', regreq)
+		await pr_unlock('regreq:', regreq)
+		await pr_unlock('email:', from)
 		// Successful return
 		helpers.formatApiResponse(200, res, {
-			email_used: from
+			email_used: from,
 		});
 	});
 };
@@ -265,40 +262,41 @@ plugin.addAdminNavigation = (header) => {
 
 plugin.loggedOut = async (params) => {
 	const { req } = params
-	// **Requires a patched nodebb at src/controllers/authentication.js that changes req.session.destory() to req.session.regenerate()**
+	// **Requires a patched nodebb at src/controllers/authentication.js
+	// that changes req.session.destory() to req.session.regenerate()**
 	req.session.captcha = true
 }
 
 plugin.regCheck = async (payload) => {
-	let { userData } = payload
+	const { userData } = payload
 	const regreq = userData.username + '\n' + userData.password
-	if (! await db.isSetMember("pr:regreq", regreq)) {
-		throw new Error("The Server has not received your register request.")
-	} else if (await db.isSetMember("pr:regreq_done", regreq)) {
-		throw new Error("This register request has already been completed.")
+	if (!await db.isSetMember('pr:regreq', regreq)) {
+		throw new Error('The Server has not received your register request.')
+	} else if (await db.isSetMember('pr:regreq_done', regreq)) {
+		throw new Error('This register request has already been completed.')
 	}
 }
 
 plugin.regAbort = async (payload) => {
-	let { req } = payload
-	let userData = req.session.registration
+	const { req } = payload
+	const userData = req.session.registration
 	if (!userData) {
 		return
 	}
 	const regreq = userData.username + '\n' + userData.password
-	await db.setRemove("pr:regreq_done", regreq)
+	await db.setRemove('pr:regreq_done', regreq)
 }
 
 plugin.interstitial = async (payload) => {
-	let { req, userData } = payload
-	if (req.method !== "POST") {
+	const { req, userData } = payload
+	if (req.method !== 'POST') {
 		return payload
 	}
 	// Don't activate when user POST at first page /register, when user has not yet read the "complete" page warnings
 	// Use route path instead of absolute path, because website can be prefixed
-	if (req.route.path === "/register/complete") {
+	if (req.route.path === '/register/complete') {
 		const regreq = userData.username + '\n' + userData.password
-		await db.setAdd("pr:regreq_done", regreq)
+		await db.setAdd('pr:regreq_done', regreq)
 	}
 	return payload
 }
