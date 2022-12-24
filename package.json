@@ -1,37 +1,30 @@
 {
-  "name": "nodebb-plugin-pr",
-  "version": "0.4.3",
-  "description": "A starter kit for quickly creating NodeBB plugins",
-  "main": "library.js",
-  "keywords": [
-    "nodebb",
-    "plugin",
-    "shell"
-  ],
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
-  },
-  "lint-staged": {
-    "*.js": [
-      "eslint --fix",
-      "git add"
-    ]
-  },
-  "license": "MIT",
-  "readmeFilename": "README.md",
-  "nbbpm": {
-    "compatibility": "^3.0.0"
-  },
-  "devDependencies": {
-    "@commitlint/cli": "17.3.0",
-    "@commitlint/config-angular": "17.3.0",
-    "eslint": "8.28.0",
-    "eslint-config-nodebb": "0.2.1",
-    "eslint-plugin-import": "2.26.0",
-    "husky": "8.0.2",
-    "lint-staged": "13.0.4"
-  }
+	"name": "@pkuanvil/nodebb-plugin-pr",
+	"version": "0.0.1",
+	"description": "PKU Anvil private additions",
+	"main": "library.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/pkuanvil/nodebb-plugin-pr"
+	},
+	"keywords": [
+		"nodebb",
+		"plugin",
+		"hcaptcha"
+	],
+	"author": "PKU Anvil <pkuanvil@proton.me>",
+	"license": "MIT",
+	"readmeFilename": "README.md",
+	"nbbpm": {
+		"compatibility": "^3.0.0"
+	},
+	"bugs": {
+		"url": "https://github.com/pkuanvil/nodebb-plugin-pr/issues"
+	},
+	"devDependencies": {
+		"@commitlint/cli": "^17.3.0",
+		"eslint": "^8.28.0",
+		"eslint-config-nodebb": "^0.2.1",
+		"eslint-plugin-import": "2.x"
+	}
 }

@@ -1,6 +1,5 @@
 {
-	"id": "nodebb-plugin-pr",
-	"library": "./library.js",
+	"id": "@pkuanvil/nodebb-plugin-pr",
 	"hooks": [
 		{ "hook": "static:app.load", "method": "init" },
 		{ "hook": "static:app.preload", "method": "preload" },
