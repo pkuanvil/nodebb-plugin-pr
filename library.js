@@ -225,6 +225,9 @@ plugin.loggedOut = async (params) => {
 
 plugin.regCheck = async (payload) => {
 	const { userData } = payload;
+	if (userData.noscript === 'true') {
+		throw new Error('Registeration requires JavaScript.');
+	}
 	const regreq = `${userData.username}\n${userData.password}`;
 	if (!await db.isSetMember('pr:regreq', regreq)) {
 		throw new Error('The Server has not received your register request.');
