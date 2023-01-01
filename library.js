@@ -77,6 +77,15 @@ function tryDecryptAll(arr, pr_sk_base64) {
 	return res;
 }
 
+function suffix_includes(str_array, match) {
+	for (const item of str_array) {
+		if (item.endsWith(match)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 // prefix must not exceed 15 chars
 const PREFIX_MAX_LEN = 15;
 async function pr_lock(prefix, value, error) {
@@ -127,7 +136,7 @@ plugin.addRoutes = async ({ router, helpers }) => {
 		let reverse_domains = [];
 		try {
 			reverse_domains = await dns.promises.reverse(remote_ip);
-			if (!reverse_domains || (helo_domain && !reverse_domains.includes(helo_domain))) {
+			if (!reverse_domains || (helo_domain && !suffix_includes(reverse_domains, helo_domain))) {
 				return helpers.formatApiResponse(403, res, Error(`Reverse DNS check failed: ip ${remote_ip} resolves to ${reverse_domains}, which does not match ${helo_domain}`));
 			}
 		} catch (e) {
