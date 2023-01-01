@@ -155,13 +155,7 @@ plugin.addRoutes = async ({ router, helpers }) => {
 		for (let i = 0; i < pr_reverse_domains.length; i++) {
 			const pr_dns_dm = pr_reverse_domains[i];
 			const pr_from_dm = pr_from_domains[i];
-			let reverse_find = false;
-			for (const reverse_1 of reverse_domains) {
-				if (reverse_1.endsWith(pr_dns_dm)) {
-					reverse_find = true;
-					break;
-				}
-			}
+			const reverse_find = suffix_includes(reverse_domains, pr_dns_dm);
 			if (reverse_find && from_domain === pr_from_dm) {
 				is_valid_reverse_domain = true;
 				break;
