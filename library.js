@@ -10,7 +10,7 @@ const db = require.main.require('./src/database');
 
 const controllers = require('./lib/controllers');
 const hcaptcha = require('./lib/hcaptcha');
-const { email_cloudmailin } = require('./lib/emaliregister');
+const { email_add, email_cloudmailin } = require('./lib/emaliregister');
 
 const USE_HCAPTCHA = nconf.get('use_hcaptcha');
 
@@ -50,6 +50,14 @@ plugin.addRoutes = async ({ router, helpers }) => {
 		const email = await meta.settings.getOne('pr', 'register_email');
 		res.status(200).type('text/plain').send(email);
 	});
+	/* Simpler admin interface which is supposed to be only used by administrators.
+	   It will blindly trust the body content (but obviously still requires a secret key from adminstrator).
+	   It doesn't do reverse DNS and IP checks in anyway,
+	*/
+	router.post('/pr_EmailAdd/:sk', async (req, res) => {
+		await email_add(req, res, { helpers });
+	});
+	// Original Cloudmailin interface which accepts automated JSON from cloudmailin, not in use now
 	router.post('/pr_EmailRegReq/:sk', async (req, res) => {
 		await email_cloudmailin(req, res, { helpers });
 	});
