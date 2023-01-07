@@ -4,6 +4,7 @@ const nconf = require.main.require('nconf');
 const crypto = require.main.require('crypto');
 const buffer = require.main.require('buffer');
 const { Buffer } = buffer;
+const _ = require.main.require('lodash');
 
 const meta = require.main.require('./src/meta');
 const db = require.main.require('./src/database');
@@ -114,6 +115,12 @@ plugin.interstitial = async (payload) => {
 		const regreq = `${userData.username}\n${userData.password}`;
 		await db.setAdd('pr:regreq_done', regreq);
 	}
+	return payload;
+};
+
+plugin.user_whitelistFields = async (payload) => {
+	const { whitelist } = payload;
+	_.remove(whitelist, value => value === 'joindate');
 	return payload;
 };
 
