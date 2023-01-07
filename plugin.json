@@ -9,6 +9,7 @@
 		{ "hook": "filter:register.interstitial", "method": "interstitial" },
 		{ "hook": "action:pr_register.abort", "method": "regAbort" },
 		{ "hook": "filter:user.whitelistFields", "method": "user_whitelistFields" },
+		{ "hook": "filter:users.addFields", "method": "users_addFields" },
 		{ "hook": "filter:admin.header.build", "method": "addAdminNavigation" }
 	],
 	"staticDirs": {

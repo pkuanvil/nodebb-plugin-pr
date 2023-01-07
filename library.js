@@ -124,4 +124,10 @@ plugin.user_whitelistFields = async (payload) => {
 	return payload;
 };
 
+plugin.users_addFields = async (payload) => {
+	const { fields } = payload;
+	_.remove(fields, value => value === 'joindate');
+	return payload;
+};
+
 module.exports = plugin;
