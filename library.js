@@ -8,6 +8,7 @@ const _ = require.main.require('lodash');
 
 const meta = require.main.require('./src/meta');
 const db = require.main.require('./src/database');
+const topics = require.main.require('./src/topics');
 
 const controllers = require('./lib/controllers');
 const hcaptcha = require('./lib/hcaptcha');
@@ -127,6 +128,54 @@ plugin.user_whitelistFields = async (payload) => {
 plugin.users_addFields = async (payload) => {
 	const { fields } = payload;
 	_.remove(fields, value => value === 'joindate');
+	return payload;
+};
+
+plugin.privileges_topicsFilter = async (payload) => {
+	const { privilege, uid, tids } = payload;
+	if (privilege === 'topics:read') {
+		// Don't allow topic from future timestamp ("scheduled topic") to be shown, unless for topic owner
+		const topicsData = await topics.getTopicsFields(tids, ['uid', 'tid', 'timestamp']);
+		payload.tids = topicsData.filter((t) => {
+			if (t.timestamp && t.timestamp > Date.now() && parseInt(uid, 10) !== t.uid) {
+				return false;
+			}
+			return true;
+		}).map(t => t.tid);
+	}
+	return payload;
+};
+
+// Fix /topic/{tid} route
+plugin.privileges_topicsGet = async (payload) => {
+	const { uid, tid } = payload;
+	const t = await topics.getTopicFields([tid], ['uid', 'tid', 'timestamp']);
+	if (t.timestamp && t.timestamp > Date.now() && parseInt(uid, 10) !== t.uid) {
+		payload.view_scheduled = false;
+	}
+	return payload;
+};
+
+// Fix teaser and user profile
+plugin.post_getPostSummaryByPids = async (payload) => {
+	const { posts, uid } = payload;
+	payload.posts = posts.filter((p) => {
+		if (p.timestamp && p.timestamp > Date.now() && parseInt(uid, 10) !== p.uid) {
+			return false;
+		}
+		return true;
+	});
+	return payload;
+};
+
+plugin.category_topicsGet = async (payload) => {
+	const { topics, uid } = payload;
+	payload.topics = topics.filter((t) => {
+		if (t.timestamp && t.timestamp > Date.now() && parseInt(uid, 10) !== t.uid) {
+			return false;
+		}
+		return true;
+	});
 	return payload;
 };
 

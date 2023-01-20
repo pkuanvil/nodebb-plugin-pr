@@ -10,6 +10,10 @@
 		{ "hook": "action:pr_register.abort", "method": "regAbort" },
 		{ "hook": "filter:user.whitelistFields", "method": "user_whitelistFields" },
 		{ "hook": "filter:users.addFields", "method": "users_addFields" },
+		{ "hook": "filter:privileges.topics.filter", "method": "privileges_topicsFilter"},
+		{ "hook": "filter:privileges.topics.get", "method": "privileges_topicsGet" },
+		{ "hook": "filter:post.getPostSummaryByPids", "method": "post_getPostSummaryByPids" },
+		{ "hook": "filter:category.topics.get", "method": "category_topicsGet" },
 		{ "hook": "filter:admin.header.build", "method": "addAdminNavigation" }
 	],
 	"staticDirs": {
