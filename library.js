@@ -131,17 +131,17 @@ plugin.users_addFields = async (payload) => {
 	return payload;
 };
 
+function isFutureTopicorPost(data, callerUid) {
+	return data.timestamp && data.timestamp > Date.now() && parseInt(callerUid, 10) !== data.uid;
+}
+
 plugin.privileges_topicsFilter = async (payload) => {
-	const { privilege, uid, tids } = payload;
+	const { privilege, uid } = payload;
 	if (privilege === 'topics:read') {
 		// Don't allow topic from future timestamp ("scheduled topic") to be shown, unless for topic owner
-		const topicsData = await topics.getTopicsFields(tids, ['uid', 'tid', 'timestamp']);
-		payload.tids = topicsData.filter((t) => {
-			if (t.timestamp && t.timestamp > Date.now() && parseInt(uid, 10) !== t.uid) {
-				return false;
-			}
-			return true;
-		}).map(t => t.tid);
+		const topicsData = await topics.getTopicsFields(payload.tids, ['uid', 'tid', 'timestamp']);
+		payload.tids = topicsData.filter(t => !isFutureTopicorPost(t, uid))
+			.map(t => t.tid);
 	}
 	return payload;
 };
@@ -150,7 +150,7 @@ plugin.privileges_topicsFilter = async (payload) => {
 plugin.privileges_topicsGet = async (payload) => {
 	const { uid, tid } = payload;
 	const t = await topics.getTopicFields([tid], ['uid', 'tid', 'timestamp']);
-	if (t.timestamp && t.timestamp > Date.now() && parseInt(uid, 10) !== t.uid) {
+	if (isFutureTopicorPost(t, uid)) {
 		payload.view_scheduled = false;
 	}
 	return payload;
@@ -158,24 +158,14 @@ plugin.privileges_topicsGet = async (payload) => {
 
 // Fix teaser and user profile
 plugin.post_getPostSummaryByPids = async (payload) => {
-	const { posts, uid } = payload;
-	payload.posts = posts.filter((p) => {
-		if (p.timestamp && p.timestamp > Date.now() && parseInt(uid, 10) !== p.uid) {
-			return false;
-		}
-		return true;
-	});
+	const { uid } = payload;
+	payload.posts = payload.posts.filter(p => !isFutureTopicorPost(p, uid));
 	return payload;
 };
 
 plugin.category_topicsGet = async (payload) => {
-	const { topics, uid } = payload;
-	payload.topics = topics.filter((t) => {
-		if (t.timestamp && t.timestamp > Date.now() && parseInt(uid, 10) !== t.uid) {
-			return false;
-		}
-		return true;
-	});
+	const { uid } = payload;
+	payload.topics = payload.topics.filter(t => !isFutureTopicorPost(t, uid));
 	return payload;
 };
 
