@@ -9,7 +9,9 @@ const _ = require.main.require('lodash');
 const meta = require.main.require('./src/meta');
 const db = require.main.require('./src/database');
 const topics = require.main.require('./src/topics');
+const user = require.main.require('./src/user');
 
+const blockTag = require('./lib/blocktag');
 const controllers = require('./lib/controllers');
 const hcaptcha = require('./lib/hcaptcha');
 const { email_add, email_cloudmailin } = require('./lib/emaliregister');
@@ -135,12 +137,20 @@ function isFutureTopicorPost(data, callerUid) {
 	return data.timestamp && data.timestamp > Date.now() && parseInt(callerUid, 10) !== data.uid;
 }
 
+const scheduleFields = ['uid', 'tid', 'timestamp'];
+const ensureDataFields = _.union(scheduleFields, blockTag.dataFields);
+
 plugin.privileges_topicsFilter = async (payload) => {
 	const { privilege, uid } = payload;
 	if (privilege === 'topics:read') {
 		// Don't allow topic from future timestamp ("scheduled topic") to be shown, unless for topic owner
-		const topicsData = await topics.getTopicsFields(payload.tids, ['uid', 'tid', 'timestamp']);
-		payload.tids = topicsData.filter(t => !isFutureTopicorPost(t, uid))
+		const [topicsData, settings] = await Promise.all([
+			topics.getTopicsFields(payload.tids, ensureDataFields),
+			user.getSettings(),
+		]);
+		payload.tids = topicsData.filter(
+			t => !isFutureTopicorPost(t, uid) && !blockTag.hasBlockedTags(t, settings)
+		)
 			.map(t => t.tid);
 	}
 	return payload;
@@ -159,14 +169,32 @@ plugin.privileges_topicsGet = async (payload) => {
 // Fix teaser and user profile
 plugin.post_getPostSummaryByPids = async (payload) => {
 	const { uid } = payload;
-	payload.posts = payload.posts.filter(p => !isFutureTopicorPost(p, uid));
+	const [topicsData, settings] = await Promise.all([
+		topics.getTopicFields(payload.posts.map(p => p.tid), ensureDataFields),
+		user.getSettings(),
+	]);
+	// Don't add fields like 'tags' to payload.posts; only do a filter
+	payload.posts = payload.posts.filter((__unused__, i) => {
+		const p = topicsData[i];
+		return !isFutureTopicorPost(p, uid) && !blockTag.hasBlockedTags(p, settings);
+	});
 	return payload;
 };
 
 plugin.category_topicsGet = async (payload) => {
 	const { uid } = payload;
-	payload.topics = payload.topics.filter(t => !isFutureTopicorPost(t, uid));
+	const [topicsData, settings] = await Promise.all([
+		topics.getTopicFields(payload.topics.map(t => t.tid), ensureDataFields),
+		user.getSettings(),
+	]);
+	// Don't add fields like 'tags' to payload.topics; only do a filter
+	payload.topics = payload.topics.filter((__unused__, i) => {
+		const t = topicsData[i];
+		return !isFutureTopicorPost(t, uid) && !blockTag.hasBlockedTags(t, settings);
+	});
 	return payload;
 };
+
+plugin.user_saveSettings = blockTag.userSaveSettings;
 
 module.exports = plugin;

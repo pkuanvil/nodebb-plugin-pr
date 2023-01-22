@@ -14,6 +14,7 @@
 		{ "hook": "filter:privileges.topics.get", "method": "privileges_topicsGet" },
 		{ "hook": "filter:post.getPostSummaryByPids", "method": "post_getPostSummaryByPids" },
 		{ "hook": "filter:category.topics.get", "method": "category_topicsGet" },
+		{ "hook": "filter:user.saveSettings", "method": "user_saveSettings" },
 		{ "hook": "filter:admin.header.build", "method": "addAdminNavigation" }
 	],
 	"staticDirs": {
