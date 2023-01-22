@@ -15,12 +15,14 @@ const blockTag = require('./lib/blocktag');
 const controllers = require('./lib/controllers');
 const hcaptcha = require('./lib/hcaptcha');
 const { email_add, email_cloudmailin } = require('./lib/emaliregister');
+const Utility = require('./lib/utility');
 
 const USE_HCAPTCHA = nconf.get('use_hcaptcha');
 
 const routeHelpers = require.main.require('./src/routes/helpers');
 
 const plugin = {};
+Utility.injectHookName(plugin);
 
 plugin.static.app.load = async (params) => {
 	const { router /* , middleware , controllers */ } = params;
