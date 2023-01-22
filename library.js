@@ -22,7 +22,7 @@ const routeHelpers = require.main.require('./src/routes/helpers');
 
 const plugin = {};
 
-plugin.init = async (params) => {
+plugin.static.app.load = async (params) => {
 	const { router /* , middleware , controllers */ } = params;
 
 	routeHelpers.setupAdminPageRoute(router, '/admin/plugins/pr', [], controllers.renderAdminPage);
@@ -33,7 +33,7 @@ plugin.init = async (params) => {
 	}
 };
 
-plugin.preload = async (params) => {
+plugin.static.app.preload = async (params) => {
 	const { app } = params;
 	if (USE_HCAPTCHA) {
 		// Captcha mandatory at application-wide, unless loggged in or session already has verified captcha
@@ -41,7 +41,7 @@ plugin.preload = async (params) => {
 	}
 };
 
-plugin.addRoutes = async ({ router, helpers }) => {
+plugin.static.api.routes = async ({ router, helpers }) => {
 	// Don't use routeHelpers.setupApiRoute() since we don't want bear authentication token or csrf token here
 	router.get('/pr_pubkey', async (req, res) => {
 		const pr_sk_base64 = await meta.settings.getOne('pr', 'register_sk');
@@ -67,7 +67,7 @@ plugin.addRoutes = async ({ router, helpers }) => {
 	});
 };
 
-plugin.addAdminNavigation = (header) => {
+plugin.filter.admin.header.build = (header) => {
 	header.plugins.push({
 		route: '/plugins/pr',
 		icon: 'fa-tint',
@@ -77,14 +77,14 @@ plugin.addAdminNavigation = (header) => {
 	return header;
 };
 
-plugin.loggedOut = async (params) => {
+plugin.static.user.loggedOut = async (params) => {
 	const { req } = params;
 	// **Requires a patched nodebb at src/controllers/authentication.js
 	// that changes req.session.destory() to req.session.regenerate()**
 	req.session.captcha = true;
 };
 
-plugin.regCheck = async (payload) => {
+plugin.filter.register.check = async (payload) => {
 	const { userData } = payload;
 	if (userData.noscript === 'true') {
 		throw new Error('Registeration requires JavaScript.');
@@ -97,7 +97,7 @@ plugin.regCheck = async (payload) => {
 	}
 };
 
-plugin.regAbort = async (payload) => {
+plugin.action.pr_register.abort = async (payload) => {
 	const { req } = payload;
 	const userData = req.session.registration;
 	if (!userData) {
@@ -107,7 +107,7 @@ plugin.regAbort = async (payload) => {
 	await db.setRemove('pr:regreq_done', regreq);
 };
 
-plugin.interstitial = async (payload) => {
+plugin.filter.register.interstitial = async (payload) => {
 	const { req, userData } = payload;
 	if (req.method !== 'POST') {
 		return payload;
@@ -121,13 +121,13 @@ plugin.interstitial = async (payload) => {
 	return payload;
 };
 
-plugin.user_whitelistFields = async (payload) => {
+plugin.filter.user.whitelistFields = async (payload) => {
 	const { whitelist } = payload;
 	_.remove(whitelist, value => value === 'joindate');
 	return payload;
 };
 
-plugin.users_addFields = async (payload) => {
+plugin.filter.users.addFields = async (payload) => {
 	const { fields } = payload;
 	_.remove(fields, value => value === 'joindate');
 	return payload;
@@ -147,7 +147,7 @@ function getFilter(tids, uid) {
 	]);
 }
 
-plugin.privileges_topicsFilter = async (payload) => {
+plugin.filter.privileges.topics.filter = async (payload) => {
 	const { privilege, uid } = payload;
 	if (privilege === 'topics:read') {
 		// Don't allow topic from future timestamp ("scheduled topic") to be shown, unless for topic owner
@@ -161,7 +161,7 @@ plugin.privileges_topicsFilter = async (payload) => {
 };
 
 // Fix /topic/{tid} route
-plugin.privileges_topicsGet = async (payload) => {
+plugin.filter.privileges.topics.get = async (payload) => {
 	const { uid, tid } = payload;
 	const t = await topics.getTopicFields([tid], scheduleFields);
 	if (isFutureTopicorPost(t, uid)) {
@@ -171,7 +171,7 @@ plugin.privileges_topicsGet = async (payload) => {
 };
 
 // Fix teaser and user profile
-plugin.post_getPostSummaryByPids = async (payload) => {
+plugin.filter.post.getPostSummaryByPids = async (payload) => {
 	const { uid } = payload;
 	const [topicsData, settings] = await getFilter(payload.posts.map(p => p.tid), uid);
 	// Don't add fields like 'tags' to payload.posts; only do a filter
@@ -182,7 +182,7 @@ plugin.post_getPostSummaryByPids = async (payload) => {
 	return payload;
 };
 
-plugin.category_topicsGet = async (payload) => {
+plugin.filter.category.topics.get = async (payload) => {
 	const { uid } = payload;
 	const [topicsData, settings] = await getFilter(payload.topics.map(t => t.tid), uid);
 	// Don't add fields like 'tags' to payload.topics; only do a filter
@@ -193,6 +193,6 @@ plugin.category_topicsGet = async (payload) => {
 	return payload;
 };
 
-plugin.user_saveSettings = blockTag.userSaveSettings;
+plugin.filter.user.saveSettings = blockTag.userSaveSettings;
 
 module.exports = plugin;

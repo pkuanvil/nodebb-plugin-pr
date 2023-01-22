@@ -1,21 +1,21 @@
 {
 	"id": "@pkuanvil/nodebb-plugin-pr",
 	"hooks": [
-		{ "hook": "static:app.load", "method": "init" },
-		{ "hook": "static:app.preload", "method": "preload" },
-		{ "hook": "static:api.routes", "method": "addRoutes" },
-		{ "hook": "static:user.loggedOut", "method": "loggedOut" },
-		{ "hook": "filter:register.check", "method": "regCheck"},
-		{ "hook": "filter:register.interstitial", "method": "interstitial" },
-		{ "hook": "action:pr_register.abort", "method": "regAbort" },
-		{ "hook": "filter:user.whitelistFields", "method": "user_whitelistFields" },
-		{ "hook": "filter:users.addFields", "method": "users_addFields" },
-		{ "hook": "filter:privileges.topics.filter", "method": "privileges_topicsFilter"},
-		{ "hook": "filter:privileges.topics.get", "method": "privileges_topicsGet" },
-		{ "hook": "filter:post.getPostSummaryByPids", "method": "post_getPostSummaryByPids" },
-		{ "hook": "filter:category.topics.get", "method": "category_topicsGet" },
-		{ "hook": "filter:user.saveSettings", "method": "user_saveSettings" },
-		{ "hook": "filter:admin.header.build", "method": "addAdminNavigation" }
+		{ "hook": "static:app.load", "method": "static.app.load" },
+		{ "hook": "static:app.preload", "method": "static.app.preload" },
+		{ "hook": "static:api.routes", "method": "static.api.routes" },
+		{ "hook": "static:user.loggedOut", "method": "static.user.loggedOut" },
+		{ "hook": "filter:register.check", "method": "filter.register.check"},
+		{ "hook": "filter:register.interstitial", "method": "filter.register.interstitial" },
+		{ "hook": "action:pr_register.abort", "method": "action.pr_register.abort" },
+		{ "hook": "filter:user.whitelistFields", "method": "filter.user.whitelistFields" },
+		{ "hook": "filter:users.addFields", "method": "filter.users.addFields" },
+		{ "hook": "filter:privileges.topics.filter", "method": "filter.privileges.topics.filter"},
+		{ "hook": "filter:privileges.topics.get", "method": "filter.privileges.topics.get" },
+		{ "hook": "filter:post.getPostSummaryByPids", "method": "filter.post.getPostSummaryByPids" },
+		{ "hook": "filter:category.topics.get", "method": "filter.category.topics.get" },
+		{ "hook": "filter:user.saveSettings", "method": "filter.user.saveSettings" },
+		{ "hook": "filter:admin.header.build", "method": "filter.admin.header.build" }
 	],
 	"staticDirs": {
 		"static": "./static"
