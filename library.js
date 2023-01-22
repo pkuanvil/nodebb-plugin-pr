@@ -140,14 +140,18 @@ function isFutureTopicorPost(data, callerUid) {
 const scheduleFields = ['uid', 'tid', 'timestamp'];
 const ensureDataFields = _.union(scheduleFields, blockTag.dataFields);
 
+function getFilter(tids, uid) {
+	return Promise.all([
+		topics.getTopicsFields(tids, ensureDataFields),
+		user.getSettings(uid),
+	]);
+}
+
 plugin.privileges_topicsFilter = async (payload) => {
 	const { privilege, uid } = payload;
 	if (privilege === 'topics:read') {
 		// Don't allow topic from future timestamp ("scheduled topic") to be shown, unless for topic owner
-		const [topicsData, settings] = await Promise.all([
-			topics.getTopicsFields(payload.tids, ensureDataFields),
-			user.getSettings(),
-		]);
+		const [topicsData, settings] = await getFilter(payload.tids, uid);
 		payload.tids = topicsData.filter(
 			t => !isFutureTopicorPost(t, uid) && !blockTag.hasBlockedTags(t, settings)
 		)
@@ -159,7 +163,7 @@ plugin.privileges_topicsFilter = async (payload) => {
 // Fix /topic/{tid} route
 plugin.privileges_topicsGet = async (payload) => {
 	const { uid, tid } = payload;
-	const t = await topics.getTopicFields([tid], ['uid', 'tid', 'timestamp']);
+	const t = await topics.getTopicFields([tid], scheduleFields);
 	if (isFutureTopicorPost(t, uid)) {
 		payload.view_scheduled = false;
 	}
@@ -169,10 +173,7 @@ plugin.privileges_topicsGet = async (payload) => {
 // Fix teaser and user profile
 plugin.post_getPostSummaryByPids = async (payload) => {
 	const { uid } = payload;
-	const [topicsData, settings] = await Promise.all([
-		topics.getTopicFields(payload.posts.map(p => p.tid), ensureDataFields),
-		user.getSettings(),
-	]);
+	const [topicsData, settings] = await getFilter(payload.posts.map(p => p.tid), uid);
 	// Don't add fields like 'tags' to payload.posts; only do a filter
 	payload.posts = payload.posts.filter((__unused__, i) => {
 		const p = topicsData[i];
@@ -183,10 +184,7 @@ plugin.post_getPostSummaryByPids = async (payload) => {
 
 plugin.category_topicsGet = async (payload) => {
 	const { uid } = payload;
-	const [topicsData, settings] = await Promise.all([
-		topics.getTopicFields(payload.topics.map(t => t.tid), ensureDataFields),
-		user.getSettings(),
-	]);
+	const [topicsData, settings] = await getFilter(payload.topics.map(t => t.tid), uid);
 	// Don't add fields like 'tags' to payload.topics; only do a filter
 	payload.topics = payload.topics.filter((__unused__, i) => {
 		const t = topicsData[i];
