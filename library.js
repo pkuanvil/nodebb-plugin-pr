@@ -14,7 +14,7 @@ const user = require.main.require('./src/user');
 const blockTag = require('./lib/blocktag');
 const controllers = require('./lib/controllers');
 const hcaptcha = require('./lib/hcaptcha');
-const { email_add, email_cloudmailin } = require('./lib/emaliregister');
+const { email_add } = require('./lib/emaliregister');
 const Utility = require('./lib/utility');
 
 const USE_HCAPTCHA = nconf.get('use_hcaptcha');
@@ -62,10 +62,6 @@ plugin.static.api.routes = async ({ router, helpers }) => {
 	*/
 	router.post('/pr_EmailAdd/:sk', async (req, res) => {
 		await email_add(req, res, { helpers });
-	});
-	// Original Cloudmailin interface which accepts automated JSON from cloudmailin, not in use now
-	router.post('/pr_EmailRegReq/:sk', async (req, res) => {
-		await email_cloudmailin(req, res, { helpers });
 	});
 };
 
