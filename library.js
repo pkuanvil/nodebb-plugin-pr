@@ -16,6 +16,7 @@ const controllers = require('./lib/controllers');
 const hcaptcha = require('./lib/hcaptcha');
 const { email_add } = require('./lib/emaliregister');
 const Utility = require('./lib/utility');
+const Privacy = require('./lib/privacy');
 
 const USE_HCAPTCHA = nconf.get('use_hcaptcha');
 
@@ -121,22 +122,18 @@ plugin.filter.register.interstitial = async (payload) => {
 
 plugin.filter.user.whitelistFields = async (payload) => {
 	const { whitelist } = payload;
-	_.remove(whitelist, value => value === 'joindate');
+	Privacy.removeJoinDateFromArray(whitelist);
 	return payload;
 };
 
 plugin.filter.users.addFields = async (payload) => {
 	const { fields } = payload;
-	_.remove(fields, value => value === 'joindate');
+	Privacy.removeJoinDateFromArray(fields);
 	return payload;
 };
 
-function isFutureTopicorPost(data, callerUid) {
-	return data.timestamp && data.timestamp > Date.now() && parseInt(callerUid, 10) !== data.uid;
-}
-
-const scheduleFields = ['uid', 'tid', 'timestamp'];
-const ensureDataFields = _.union(scheduleFields, blockTag.dataFields);
+const scheduleFields = ['uid', 'tid'];
+const ensureDataFields = _.union(scheduleFields, Privacy.dataFields, blockTag.dataFields);
 
 function getFilter(tids, uid) {
 	return Promise.all([
@@ -151,7 +148,7 @@ plugin.filter.privileges.topics.filter = async (payload) => {
 		// Don't allow topic from future timestamp ("scheduled topic") to be shown, unless for topic owner
 		const [topicsData, settings] = await getFilter(payload.tids, uid);
 		payload.tids = topicsData.filter(
-			t => !isFutureTopicorPost(t, uid) && !blockTag.hasBlockedTags(t, settings)
+			t => !Privacy.isFutureTopicorPost(t, uid) && !blockTag.hasBlockedTags(t, settings)
 		)
 			.map(t => t.tid);
 	}
@@ -162,7 +159,7 @@ plugin.filter.privileges.topics.filter = async (payload) => {
 plugin.filter.privileges.topics.get = async (payload) => {
 	const { uid, tid } = payload;
 	const t = await topics.getTopicFields([tid], scheduleFields);
-	if (isFutureTopicorPost(t, uid)) {
+	if (Privacy.isFutureTopicorPost(t, uid)) {
 		payload.view_scheduled = false;
 	}
 	return payload;
@@ -175,7 +172,7 @@ plugin.filter.post.getPostSummaryByPids = async (payload) => {
 	// Don't add fields like 'tags' to payload.posts; only do a filter
 	payload.posts = payload.posts.filter((__unused__, i) => {
 		const p = topicsData[i];
-		return !isFutureTopicorPost(p, uid) && !blockTag.hasBlockedTags(p, settings);
+		return !Privacy.isFutureTopicorPost(p, uid) && !blockTag.hasBlockedTags(p, settings);
 	});
 	return payload;
 };
@@ -186,7 +183,7 @@ plugin.filter.category.topics.get = async (payload) => {
 	// Don't add fields like 'tags' to payload.topics; only do a filter
 	payload.topics = payload.topics.filter((__unused__, i) => {
 		const t = topicsData[i];
-		return !isFutureTopicorPost(t, uid) && !blockTag.hasBlockedTags(t, settings);
+		return !Privacy.isFutureTopicorPost(t, uid) && !blockTag.hasBlockedTags(t, settings);
 	});
 	return payload;
 };
