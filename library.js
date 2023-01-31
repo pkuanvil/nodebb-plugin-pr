@@ -5,6 +5,7 @@ const crypto = require.main.require('crypto');
 const buffer = require.main.require('buffer');
 const { Buffer } = buffer;
 const _ = require.main.require('lodash');
+const multipart = require.main.require('connect-multiparty');
 
 const meta = require.main.require('./src/meta');
 const db = require.main.require('./src/database');
@@ -17,6 +18,7 @@ const hcaptcha = require('./lib/hcaptcha');
 const { email_add } = require('./lib/emaliregister');
 const Utility = require('./lib/utility');
 const Privacy = require('./lib/privacy');
+const Dkim = require('./lib/dkim');
 
 const USE_HCAPTCHA = nconf.get('use_hcaptcha');
 
@@ -34,6 +36,11 @@ plugin.static.app.load = async (params) => {
 		routeHelpers.setupPageRoute(router, '/captcha', [], hcaptcha.get);
 		router.post('/captcha', hcaptcha.post);
 	}
+	routeHelpers.setupPageRoute(router, '/pr_dkim_upload', Dkim.uploadGET);
+	const multipartMiddleWare = multipart();
+	router.post('/pr_dkim_upload', [multipartMiddleWare], Dkim.uploadPOST);
+	routeHelpers.setupPageRoute(router, '/pr_dkim_register', controllers.pr_dkim_register_page);
+	router.post('/pr_dkim_register', [], controllers.pr_dkim_register_post);
 };
 
 plugin.static.app.preload = async (params) => {
