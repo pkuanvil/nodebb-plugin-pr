@@ -106,6 +106,10 @@ plugin.action.pr_register.abort = async (payload) => {
 	await db.setRemove('pr:regreq_done', regreq);
 };
 
+plugin.filter.sanitize.config = Privacy.sanitizeHTML;
+
+plugin.filter.pr_sanitizehtml.config = Privacy.pr_sanitizeHTML;
+
 plugin.filter.register.interstitial = async (payload) => {
 	const { req, userData } = payload;
 	if (req.method !== 'POST') {

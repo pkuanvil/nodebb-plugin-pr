@@ -8,6 +8,8 @@
 		{ "hook": "filter:register.check", "method": "filter.register.check"},
 		{ "hook": "filter:register.interstitial", "method": "filter.register.interstitial" },
 		{ "hook": "action:pr_register.abort", "method": "action.pr_register.abort" },
+		{ "hook": "filter:sanitize.config", "method": "filter.sanitize.config" },
+		{ "hook": "filter:pr_sanitizehtml.config", "method": "filter.pr_sanitizehtml.config" },
 		{ "hook": "filter:user.whitelistFields", "method": "filter.user.whitelistFields" },
 		{ "hook": "filter:users.addFields", "method": "filter.users.addFields" },
 		{ "hook": "filter:privileges.topics.filter", "method": "filter.privileges.topics.filter"},
