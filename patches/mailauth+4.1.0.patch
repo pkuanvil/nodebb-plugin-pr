@@ -1,0 +1,18 @@
+diff --git a/node_modules/mailauth/lib/dkim/dkim-verifier.js b/node_modules/mailauth/lib/dkim/dkim-verifier.js
+index a701fb9..19a909a 100644
+--- a/node_modules/mailauth/lib/dkim/dkim-verifier.js
++++ b/node_modules/mailauth/lib/dkim/dkim-verifier.js
+@@ -207,10 +207,13 @@ class DkimVerifier extends MessageParser {
+                 }
+ 
+                 let bodyHash = this.bodyHashes.get(signatureHeader.bodyHashKey)?.hash;
++                /* @pkuanvil: skip body verify
+                 if (signatureHeader.parsed?.bh?.value !== bodyHash) {
+                     status.result = 'neutral';
+                     status.comment = `body hash did not verify`;
+                 } else {
++                */
++                {
+                     try {
+                         let res = await getPublicKey(
+                             signatureHeader.type,
