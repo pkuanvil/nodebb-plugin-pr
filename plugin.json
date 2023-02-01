@@ -33,6 +33,7 @@
 	],
 	"modules": {
 		"../client/pr_dkim_upload.js": "./static/lib/pr_dkim_upload.js",
+		"../client/pr_dkim_register.js": "./static/lib/pr_dkim_register.js",
 		"../client/pr.js": "./static/lib/pr.js",
 		"../admin/plugins/pr.js": "./static/lib/admin.js"
 	},
