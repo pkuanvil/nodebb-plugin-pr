@@ -6,6 +6,7 @@ const buffer = require.main.require('buffer');
 const { Buffer } = buffer;
 const _ = require.main.require('lodash');
 const multipart = require.main.require('connect-multiparty');
+const TMP_UPLOAD_DIR = process.platform === 'linux' ? '/var/tmp' : undefined;
 
 const meta = require.main.require('./src/meta');
 const db = require.main.require('./src/database');
@@ -37,7 +38,7 @@ plugin.static.app.load = async (params) => {
 		router.post('/captcha', hcaptcha.post);
 	}
 	routeHelpers.setupPageRoute(router, '/pr_dkim_upload', Dkim.uploadGET);
-	const multipartMiddleWare = multipart();
+	const multipartMiddleWare = multipart({ uploadDir: TMP_UPLOAD_DIR });
 	router.post('/pr_dkim_upload', [multipartMiddleWare], Dkim.uploadPOST);
 	routeHelpers.setupPageRoute(router, '/pr_dkim_register', controllers.pr_dkim_register_page);
 	router.post('/pr_dkim_register', [], controllers.pr_dkim_register_post);
