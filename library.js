@@ -125,11 +125,7 @@ plugin.filter.register.check = async (payload) => {
 plugin.action.pr_register.abort = async (payload) => {
 	const { uuid, username, password } = payload.req.session.registration;
 	if (uuid) {
-		const uuidStatus = await db.getObject(`pr:dkim:uuid:${uuid}`);
-		if (uuidStatus.status === 'done') {
-			uuidStatus.status = 'success';
-			await db.setObject(`pr:dkim:uuid:${uuid}`, uuidStatus);
-		}
+		await db.setObjectField(`pr:dkim:uuid:${uuid}`, 'status', 'success');
 	} else {
 		const regreq = `${username}\n${password}`;
 		await db.setRemove('pr:regreq_done', regreq);
@@ -150,11 +146,7 @@ plugin.filter.register.interstitial = async (payload) => {
 	// Use route path instead of absolute path, because website can be prefixed
 	if (req.route.path === '/register/complete') {
 		if (uuid) {
-			const uuidStatus = await db.getObject(`pr:dkim:uuid:${uuid}`);
-			if (uuidStatus.status !== 'done') {
-				uuidStatus.status = 'done';
-				await db.setObject(`pr:dkim:uuid:${uuid}`, uuidStatus);
-			}
+			await db.setObjectField(`pr:dkim:uuid:${uuid}`, 'status', 'done');
 		} else {
 			const regreq = `${username}\n${password}`;
 			await db.setAdd('pr:regreq_done', regreq);
