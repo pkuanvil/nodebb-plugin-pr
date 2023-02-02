@@ -81,6 +81,7 @@ plugin.static.api.routes = async ({ router, helpers }) => {
 	router.post('/pr_EmailAdd/:sk', [checkAdminSk], async (req, res) => {
 		await email_add(req, res, { helpers });
 	});
+	router.post('/pr_DKIMUUID/:uuid/:sk', [checkAdminSk], Dkim.manageUUID);
 };
 
 plugin.filter.admin.header.build = (header) => {
