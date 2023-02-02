@@ -19,6 +19,7 @@
 				<div class="alert alert-warning<!-- IF !pending --> hidden<!-- ENDIF !pending -->">
 					<p>[[pr:dkim-pending]]</p>
 				</div>
+				<!-- IMPORT partials/dkim/toarray.tpl -->
 				<form component="register/local" class="form-horizontal" role="form" action="{config.relative_path}/register" method="post">
 					<div class="form-group">
 						<label for="username" class="col-lg-4 control-label">[[register:username]]</label>
