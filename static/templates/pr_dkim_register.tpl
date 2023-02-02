@@ -26,7 +26,7 @@
 							<input class="form-control" type="text" placeholder="[[register:username_placeholder]]" name="username" id="username" autocorrect="off" autocapitalize="off" autocomplete="off" />
 							<span class="register-feedback" id="username-notify"></span>
 							<span class="help-block">[[register:help.username_restrictions, {minimumUsernameLength}, {maximumUsernameLength}]]</span>
-							<span class="help-block pr-warning">[[register:pr_help.username_warning]]</span>
+							<span class="help-block pr-warning">[[persona:pr_register.username_warning]]</span>
 						</div>
 					</div>
 					<div class="form-group">
@@ -48,7 +48,7 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="uuid" class="col-lg-4 control-label">[[pr:uuid_label]]</label>
+						<label for="uuid" class="col-lg-4 control-label">[[pr:uuid-label]]</label>
 						<div class="col-lg-8">
 							<input class="form-control" type="text" name="uuid" id="uuid" value="{uuid}"/>
 							<span class="register-feedback" id="uuid-notify"></span>
