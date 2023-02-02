@@ -37,5 +37,6 @@
 		"../client/pr.js": "./static/lib/pr.js",
 		"../admin/plugins/pr.js": "./static/lib/admin.js"
 	},
+	"languages": "languages",
 	"templates": "static/templates"
 }
