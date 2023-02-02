@@ -5,6 +5,7 @@ const crypto = require.main.require('crypto');
 const buffer = require.main.require('buffer');
 const { Buffer } = buffer;
 const _ = require.main.require('lodash');
+
 const multipart = require.main.require('connect-multiparty');
 const TMP_UPLOAD_DIR = process.platform === 'linux' ? '/var/tmp' : undefined;
 
@@ -92,6 +93,8 @@ plugin.static.user.loggedOut = async (params) => {
 };
 
 plugin.filter.register.check = async (payload) => {
+	Utility.debug('Register check');
+	Utility.inspect(payload.userData);
 	const { noscript, uuid, username, password } = payload.userData;
 	if (uuid) {
 		const uuidStatus = await db.getObject(`pr:dkim:uuid:${uuid}`);
@@ -123,6 +126,8 @@ plugin.filter.register.check = async (payload) => {
 };
 
 plugin.action.pr_register.abort = async (payload) => {
+	Utility.debug('Regiser abort');
+	Utility.inspect(payload.req.session);
 	const { uuid, username, password } = payload.req.session.registration;
 	if (uuid) {
 		await db.setObjectField(`pr:dkim:uuid:${uuid}`, 'status', 'success');
@@ -137,6 +142,8 @@ plugin.filter.sanitize.config = Privacy.sanitizeHTML;
 plugin.filter.pr_sanitizehtml.config = Privacy.pr_sanitizeHTML;
 
 plugin.filter.register.interstitial = async (payload) => {
+	Utility.debug('Register interstitial');
+	Utility.inspect(payload.userData);
 	const { req, userData } = payload;
 	if (req.method !== 'POST') {
 		return payload;
