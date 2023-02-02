@@ -13,6 +13,7 @@ define('forum/pr_dkim_upload', [
 	pr_dkim_upload.init = function () {
 		const submit = $('#upload-submit');
 		const errorEl = $('#upload-error-notify');
+		$('#content #noscript').val('false');
 		submit.on('click', function (e) {
 			e.preventDefault();
 			errorEl.addClass('hidden');
@@ -23,13 +24,7 @@ define('forum/pr_dkim_upload', [
 						return;
 					}
 					if (data.next) {
-						const pathname = utils.urlToLocation(data.next).pathname;
-
-						const params = utils.params({ url: data.next });
-						params.registered = true;
-						const qs = decodeURIComponent($.param(params));
-
-						window.location.href = pathname + '?' + qs;
+						window.location.href = data.next;
 					}
 				},
 				error: function (data) {
