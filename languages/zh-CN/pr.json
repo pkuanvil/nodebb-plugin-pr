@@ -1,4 +1,7 @@
 {
+	"dkim-success": "DKIM 注册请求已通过。请在下方表单输入您希望注册的用户名和密码。您也可以保存下方显示的 UUID 以便以后注册",
+	"dkim-pending": "您的 DKIM 注册请求需要等待管理员批准。请稍后回到此界面重试。建议您保存下方显示的 UUID 以便之后重试",
+	"uuid-label": "UUID",
 	"upload.file": "选择上传的文件",
 	"upload.submit": "提交"
 }

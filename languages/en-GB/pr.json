@@ -1,4 +1,7 @@
 {
+	"dkim-success": "DKIM register request has passed. Please enter your desired username and password in the following form. You can also save the UUID displayed below to register later",
+	"dkim-pending": "Your DKIM register request needs approval from the administrator. Please return to this page and retry later. It's suggested that you save the UUID displayed below to retry later",
+	"uuid-label": "UUID",
 	"upload.file": "Choose file to upload",
 	"upload.submit": "submit"
 }
