@@ -1,6 +1,7 @@
 {
 	"dkim-success": "DKIM 注册请求已通过。请在下方表单输入您希望注册的用户名和密码。您也可以保存本页面的网址以便以后注册",
 	"dkim-pending": "您的 DKIM 注册请求需要等待管理员批准。请稍后回到此界面重试。建议您保存本页面的网址以便之后重试",
+	"dkim-rejected": "您的 DKIM 注册请求被拒绝，理由： %1",
 	"dkim-summary-label": "点击此处查看 DKIM 验证结果",
 	"dkim-details.signing-domain": "签名域名",
 	"dkim-details.to": "发件目标",

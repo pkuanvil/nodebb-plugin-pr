@@ -1,6 +1,7 @@
 {
 	"dkim-success": "DKIM register request has passed. Please enter your desired username and password in the following form. You can also save this page's web address to register later",
 	"dkim-pending": "Your DKIM register request needs approval from the administrator. Please return to this page and retry later. It's suggested that you save this page's web address to retry later",
+	"dkim-rejected": "Your DKIM register request is rejected, reason: %1",
 	"dkim-summary-label": "Click here to see DKIM verify result",
 	"dkim-details.signing-domain": "Signing Domain",
 	"dkim-details.to": "To",
