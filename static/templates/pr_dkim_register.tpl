@@ -23,6 +23,11 @@
 					<p>[[pr:dkim-pending]]</p>
 				</div>
 				<!-- ENDIF pending -->
+				<!-- IF rejected -->
+				<div class="alert alert-danger">
+					<p>[[pr:dkim-rejected, {reason}]]</p>
+				</div>
+				<!-- ENDIF rejected -->
 				<!-- IMPORT partials/dkim/toarray.tpl -->
 				<form component="register/local" class="form-horizontal" role="form" action="{config.relative_path}/register" method="post">
 					<div class="form-group">
