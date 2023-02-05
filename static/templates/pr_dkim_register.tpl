@@ -13,12 +13,16 @@
 					<strong>[[error:registration-error]]</strong>
 					<p>{error}</p>
 				</div>
-				<div class="alert alert-success<!-- IF !success --> hidden<!-- ENDIF !success -->">
+				<!-- IF success -->
+				<div class="alert alert-success">
 					<p>[[pr:dkim-success]]</p>
 				</div>
-				<div class="alert alert-warning<!-- IF !pending --> hidden<!-- ENDIF !pending -->">
+				<!-- ENDIF success -->
+				<!-- IF pending -->
+				<div class="alert alert-warning">
 					<p>[[pr:dkim-pending]]</p>
 				</div>
+				<!-- ENDIF pending -->
 				<!-- IMPORT partials/dkim/toarray.tpl -->
 				<form component="register/local" class="form-horizontal" role="form" action="{config.relative_path}/register" method="post">
 					<div class="form-group">
