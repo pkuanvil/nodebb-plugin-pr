@@ -171,15 +171,9 @@ plugin.filter.register.interstitial = async (payload) => {
 	return payload;
 };
 
-plugin.filter.user.whitelistFields = async (payload) => {
-	const { whitelist } = payload;
-	Privacy.removeJoinDateFromArray(whitelist);
-	return payload;
-};
-
-plugin.filter.users.addFields = async (payload) => {
-	const { fields } = payload;
-	Privacy.removeJoinDateFromArray(fields);
+plugin.filter.user.getFields = async (payload) => {
+	const { users: userArray } = payload;
+	Privacy.hideUserArrayFields(userArray);
 	return payload;
 };
 
