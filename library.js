@@ -239,6 +239,9 @@ plugin.filter.category.topics.get = async (payload) => {
 	return payload;
 };
 
-plugin.filter.user.saveSettings = blockTag.userSaveSettings;
+plugin.filter.user.saveSettings = (payload) => {
+	Privacy.userSaveSettings(payload);
+	blockTag.userSaveSettings(payload);
+};
 
 module.exports = plugin;
