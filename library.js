@@ -19,7 +19,7 @@ const controllers = require('./lib/controllers');
 const hcaptcha = require('./lib/hcaptcha');
 const { email_add } = require('./lib/email/sendmessage');
 const Dkim = require('./lib/email/dkim');
-const Utility = require('./lib/utility');
+const Utility = require('./lib/utility/misc');
 const Privacy = require('./lib/privacy');
 
 const USE_HCAPTCHA = nconf.get('use_hcaptcha');
