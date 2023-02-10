@@ -17,10 +17,10 @@ const user = require.main.require('./src/user');
 const blockTag = require('./lib/blocktag');
 const controllers = require('./lib/controllers');
 const hcaptcha = require('./lib/hcaptcha');
-const { email_add } = require('./lib/emaliregister');
+const { email_add } = require('./lib/email/sendmessage');
+const Dkim = require('./lib/email/dkim');
 const Utility = require('./lib/utility');
 const Privacy = require('./lib/privacy');
-const Dkim = require('./lib/dkim');
 
 const USE_HCAPTCHA = nconf.get('use_hcaptcha');
 
