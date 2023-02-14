@@ -1,17 +1,12 @@
-# Quickstart Plugin for NodeBB
+# @pkuanvil/nodebb-plugin-pr
 
-A starter kit for quickly creating NodeBB plugins. Comes with a pre-setup LESS file, server side JS script with an `action:app.load` hook, and a client-side script. Most plugins need at least one of the above, so this ought to save you some time. For a full list of hooks have a look at our [wiki page](https://github.com/NodeBB/NodeBB/wiki/Hooks), and for more information about creating plugins please visit our [documentation portal](https://docs.nodebb.org/).
+This is a NodeBB plugin private to PKU Anvil: https://www.pkuanvil.com. Current functionalities:
 
-Fork this or copy it, and using your favourite text editor find and replace all instances of `nodebb-plugin-pr` with `nodebb-plugin-your-plugins-name`. Change the author's name in the LICENSE and package.json files.
-
-## Hello World
-
-Really simple, just edit `static/lib/main.js` and paste in `console.log('hello world');`, and that's it!
-
-## Installation
-
-    npm install ./nodebb-plugin-pr
-
-## Screenshots
-
-Don't forget to add screenshots!
+* Email Register
+  - Register request (the encrypted message is simplely a RSA public key encrytion of username and password)
+  - DKIM (Verify an email which has DKIM "To:" signature)
+* hcaptcha (not yet enabled at PKU Anvil, although the code is prepared)
+* Privacy:
+  - Don't show register time
+  - Allow user to hide online time in user settings
+* Block Tag: user can filter topics with specific tag
