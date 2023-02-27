@@ -13,7 +13,7 @@
 	{{{each toArray}}}
 		<tr>
 			<td>{toArray.signingDomain}</td>
-			<td>{toArray.to}</td>
+			<td>{toArray.toEscaped}</td>
 			<td>{toArray.result}</td>
 			<td>{toArray.comment}</td>
 		</tr>
