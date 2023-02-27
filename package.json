@@ -1,6 +1,6 @@
 {
 	"name": "@pkuanvil/nodebb-plugin-pr",
-	"version": "1.5.0",
+	"version": "1.6.0",
 	"description": "PKU Anvil private additions",
 	"main": "library.js",
 	"repository": {
