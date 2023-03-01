@@ -7,6 +7,9 @@
 	"dkim-details.to": "To",
 	"dkim-details.result": "Verify Result",
 	"dkim-details.comment": "Comment",
+	"register-email-domains-heading": "Email domains allowed for this site",
+	"register-email-domains-type": "Type",
+	"register-email-domains-domain": "Domain",
 	"uuid-label": "UUID",
 	"upload.file": "Choose file to upload",
 	"upload.submit": "submit"
