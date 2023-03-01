@@ -7,6 +7,9 @@
 	"dkim-details.to": "发件目标",
 	"dkim-details.result": "验证结果",
 	"dkim-details.comment": "注释",
+	"register-email-domains-heading": "本站允许注册的邮件域名",
+	"register-email-domains-type": "类型",
+	"register-email-domains-domain": "域名",
 	"uuid-label": "UUID",
 	"upload.file": "选择上传的文件",
 	"upload.submit": "提交"
