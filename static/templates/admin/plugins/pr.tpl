@@ -18,10 +18,6 @@
 				<label class="form-label" for="register_helo_domains">PR Register HELO Domains</label>
 				<input type="text" id="register_helo_domains" name="register_helo_domains" title="PR Register Domains" class="form-control" placeholder="domain1.com;sub1.domain2.com">
 			</div>
-			<div class="mb-3">
-				<label class="form-label" for="register_from_domains">PR Register From Domains</label>
-				<input type="text" id="register_from_domains" name="register_from_domains" title="PR Register FROM Domains" class="form-control" placeholder="mail.domain1.com;mail.sub1.domain2.com">
-			</div>
 		</div>
 	</div>
 	<div class="row mb-4">
