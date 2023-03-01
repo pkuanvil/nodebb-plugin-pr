@@ -5,6 +5,7 @@ const crypto = require.main.require('crypto');
 const buffer = require.main.require('buffer');
 const { Buffer } = buffer;
 const _ = require.main.require('lodash');
+const winston = require.main.require('winston');
 
 const multipart = require.main.require('connect-multiparty');
 const TMP_UPLOAD_DIR = process.platform === 'linux' ? '/var/tmp' : undefined;
@@ -21,6 +22,7 @@ const { email_add } = require('./lib/email/sendmessage');
 const Dkim = require('./lib/email/dkim');
 const Utility = require('./lib/utility/misc');
 const Privacy = require('./lib/privacy');
+const EmailUserType = require('./lib/email/usertype');
 
 const USE_HCAPTCHA = nconf.get('use_hcaptcha');
 
@@ -143,6 +145,27 @@ plugin.action.pr_register.abort = async (payload) => {
 	} else {
 		const regreq = `${username}\n${password}`;
 		await db.setRemove('pr:regreq_done', regreq);
+	}
+};
+
+plugin.action.user.create = async ({ user: createData, data: userData }) => {
+	// This is an action hook, so manual throwing don't make sense, since it won't stop anything
+	// Catch exceptions
+	try {
+		const { uid } = createData;
+		const { uuid, username, password } = userData;
+		let type = '';
+		if (uuid) {
+			const uuidStatus = await db.getObject(`pr:dkim:uuid:${uuid}`);
+			const { emailaddress } = uuidStatus;
+			type = EmailUserType.getType(emailaddress);
+		} else {
+			const regreq = `${username}\n${password}`;
+			type = await db.sortedSetScore(`pr:regreq:types`, regreq);
+		}
+		await user.setUserField(uid, 'pr_usertype', type);
+	} catch (e) {
+		winston.error(e.stack);
 	}
 };
 
