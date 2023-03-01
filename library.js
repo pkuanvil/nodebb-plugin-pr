@@ -45,6 +45,7 @@ plugin.static.app.load = async (params) => {
 	router.post('/pr_dkim_upload', [multipartMiddleWare], Dkim.uploadPOST);
 	routeHelpers.setupPageRoute(router, '/pr_dkim_register', controllers.pr_dkim_register_page);
 	router.post('/pr_dkim_register', [], controllers.pr_dkim_register_post);
+	routeHelpers.setupPageRoute(router, '/pr_email_domains', controllers.pr_email_domains);
 };
 
 plugin.static.app.preload = async (params) => {
