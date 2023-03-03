@@ -7,6 +7,7 @@
 	"dkim-details.to": "To",
 	"dkim-details.result": "Verify Result",
 	"dkim-details.comment": "Comment",
+	"register-allow-subdomain": "Note: we allow subdomain matches, i.e. math.pku.edu.cn matches pku.edu.cn",
 	"register-email-domains-heading": "Email domains allowed for this site",
 	"register-email-domains-type": "Type",
 	"register-email-domains-domain": "Domain",

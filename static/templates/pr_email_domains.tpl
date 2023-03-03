@@ -1,4 +1,5 @@
 <h2>[[pr:register-email-domains-heading]]</h2>
+<p>[[pr:register-allow-subdomain]]</p>
 <!-- IF domains.length -->
 <table class="table table-striped">
 <thead>
