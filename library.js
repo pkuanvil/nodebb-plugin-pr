@@ -89,8 +89,7 @@ plugin.static.api.routes = async ({ router, helpers }) => {
 };
 
 plugin.filter.topics.get = async (payload) => {
-	const { topics } = payload;
-	await Excerpt.setTopicsExcerpt(topics);
+	await Excerpt.setTopicsExcerpt(payload);
 	return payload;
 };
 
@@ -273,6 +272,7 @@ plugin.filter.category.topics.get = async (payload) => {
 plugin.filter.user.saveSettings = (payload) => {
 	Privacy.userSaveSettings(payload);
 	blockTag.userSaveSettings(payload);
+	Excerpt.userSaveSettings(payload);
 	return payload;
 };
 
