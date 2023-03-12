@@ -23,6 +23,7 @@ const Dkim = require('./lib/email/dkim');
 const Utility = require('./lib/utility/misc');
 const Privacy = require('./lib/privacy');
 const EmailUserType = require('./lib/email/usertype');
+const Excerpt = require('./lib/excerpt');
 
 const USE_HCAPTCHA = nconf.get('use_hcaptcha');
 
@@ -85,6 +86,18 @@ plugin.static.api.routes = async ({ router, helpers }) => {
 		await email_add(req, res, { helpers });
 	});
 	router.post('/pr_DKIMUUID/:uuid/:sk', [checkAdminSk], Dkim.manageUUID);
+};
+
+plugin.filter.topics.get = async (payload) => {
+	const { topics } = payload;
+	await Excerpt.setTopicsExcerpt(topics);
+	return payload;
+};
+
+plugin.filter.teasers.get = async (payload) => {
+	const { teasers } = payload;
+	await Excerpt.truncTeasers(teasers);
+	return payload;
 };
 
 plugin.filter.admin.header.build = (header) => {
