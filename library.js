@@ -93,8 +93,14 @@ plugin.filter.topics.get = async (payload) => {
 	return payload;
 };
 
+plugin.filter.teasers.configureStripTags = async (payload) => {
+	payload.tags = [];
+	return payload;
+};
+
 plugin.filter.teasers.get = async (payload) => {
 	const { teasers } = payload;
+	// This requires filter:teasers.configureStripTags to correctly strip ALL HTML
 	await Excerpt.truncTeasers(teasers);
 	return payload;
 };

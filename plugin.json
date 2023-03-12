@@ -5,6 +5,7 @@
 		{ "hook": "static:app.preload", "method": "static.app.preload" },
 		{ "hook": "static:api.routes", "method": "static.api.routes" },
 		{ "hook": "filter:topics.get", "method": "filter.topics.get" },
+		{ "hook": "filter:teasers.configureStripTags", "method": "filter.teasers.configureStripTags" },
 		{ "hook": "filter:teasers.get", "method": "filter.teasers.get" },
 		{ "hook": "static:user.loggedOut", "method": "static.user.loggedOut" },
 		{ "hook": "filter:register.check", "method": "filter.register.check"},
