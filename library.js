@@ -7,7 +7,7 @@ const { Buffer } = buffer;
 const _ = require.main.require('lodash');
 const winston = require.main.require('winston');
 
-const multipart = require.main.require('connect-multiparty');
+const __multipart = require.main.require('connect-multiparty');
 const TMP_UPLOAD_DIR = process.platform === 'linux' ? '/var/tmp' : undefined;
 
 const meta = require.main.require('./src/meta');
@@ -28,9 +28,22 @@ const Excerpt = require('./lib/excerpt');
 const USE_HCAPTCHA = nconf.get('use_hcaptcha');
 
 const routeHelpers = require.main.require('./src/routes/helpers');
+const controllerHelpers = require.main.require('./src/controllers/helpers');
 
 const plugin = {};
 Utility.injectHookName(plugin);
+
+const __multipartMiddleWare = __multipart({ uploadDir: TMP_UPLOAD_DIR });
+function multipartCheck(req, res, next) {
+	if (!req.header('Content-Type') || !req.header('Content-Type').startsWith('multipart/form-data')) {
+		return controllerHelpers.formatApiResponse(
+			403,
+			res,
+			Error(`Invalid HTTP header "Content-Type: ${req.header('Content-Type')}"`)
+		);
+	}
+	return __multipartMiddleWare(req, res, next);
+}
 
 plugin.static.app.load = async (params) => {
 	const { router /* , middleware , controllers */ } = params;
@@ -42,8 +55,7 @@ plugin.static.app.load = async (params) => {
 		router.post('/captcha', hcaptcha.post);
 	}
 	routeHelpers.setupPageRoute(router, '/pr_dkim_upload', Dkim.uploadGET);
-	const multipartMiddleWare = multipart({ uploadDir: TMP_UPLOAD_DIR });
-	router.post('/pr_dkim_upload', [multipartMiddleWare], Dkim.uploadPOST);
+	router.post('/pr_dkim_upload', [multipartCheck], Dkim.uploadPOST);
 	routeHelpers.setupPageRoute(router, '/pr_dkim_register', controllers.pr_dkim_register_page);
 	router.post('/pr_dkim_register', [], controllers.pr_dkim_register_post);
 	routeHelpers.setupPageRoute(router, '/pr_email_domains', controllers.pr_email_domains);
@@ -63,7 +75,8 @@ plugin.static.api.routes = async ({ router, helpers }) => {
 		const { register_token } = await meta.settings.get('pr');
 		const skreq = req.params.sk || '';
 		if (register_token !== skreq) {
-			return helpers.formatApiResponse(404, res, null);
+			// 404 dont make sense here, use 403
+			return helpers.formatApiResponse(403, res, null);
 		}
 		next();
 	}
