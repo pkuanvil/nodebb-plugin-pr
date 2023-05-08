@@ -147,9 +147,11 @@ plugin.action.user.create = async ({ user: createData, data: userData }) => {
 	// Catch exceptions
 	try {
 		const { uid } = createData;
-		const { uuid, username, password } = userData;
+		const { uuid, invite, username, password } = userData;
 		let type = '';
-		if (uuid) {
+		if (invite) {
+			type = await db.getObjectField(`pr:invite:${invite}`);
+		} else if (uuid) {
 			const uuidStatus = await db.getObject(`pr:dkim:uuid:${uuid}`);
 			const { emailaddress } = uuidStatus;
 			type = EmailUserType.getType(emailaddress);
