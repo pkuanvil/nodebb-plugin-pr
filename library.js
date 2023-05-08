@@ -70,17 +70,18 @@ plugin.static.app.preload = async (params) => {
 	}
 };
 
-plugin.static.api.routes = async ({ router, helpers }) => {
-	// Don't use routeHelpers.setupApiRoute() since we don't want bear authentication token or csrf token here
-	async function checkAdminSk(req, res, next) {
-		const { register_token } = await meta.settings.get('pr');
-		const skreq = req.params.sk || '';
-		if (register_token !== skreq) {
-			// 404 dont make sense here, use 403
-			return helpers.formatApiResponse(403, res, null);
-		}
-		next();
+async function checkAdminSk(req, res, next) {
+	const { register_token } = await meta.settings.get('pr');
+	const skreq = req.params.sk || '';
+	if (register_token !== skreq) {
+		// 404 dont make sense here, use 403
+		return controllerHelpers.formatApiResponse(403, res, null);
 	}
+	next();
+}
+
+plugin.static.api.routes = async ({ router }) => {
+	// Don't use routeHelpers.setupApiRoute() since we don't want bear authentication token or csrf token here
 	router.get('/pr_pubkey', async (req, res) => {
 		const pr_sk_base64 = await meta.settings.getOne('pr', 'register_sk');
 		const pr_sk_str = Buffer.from(pr_sk_base64, 'base64');
@@ -96,9 +97,7 @@ plugin.static.api.routes = async ({ router, helpers }) => {
 	   It will blindly trust the body content (but obviously still requires a secret key from adminstrator).
 	   It doesn't do reverse DNS and IP checks in anyway,
 	*/
-	router.post('/pr_EmailAdd/:sk', [checkAdminSk], async (req, res) => {
-		await email_add(req, res, { helpers });
-	});
+	router.post('/pr_EmailAdd/:sk', [checkAdminSk], email_add);
 	router.post('/pr_DKIMUUID/:uuid/:sk', [checkAdminSk], Dkim.manageUUID);
 };
 
