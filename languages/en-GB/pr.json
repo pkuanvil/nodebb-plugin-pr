@@ -15,6 +15,7 @@
 	"register-email-domains-heading": "Email domains allowed for this site",
 	"register-email-domains-type": "Type",
 	"register-email-domains-domain": "Domain",
+	"invite-label": "Invite Code",
 	"uuid-label": "UUID",
 	"upload.file": "Choose file to upload",
 	"upload.submit": "submit"

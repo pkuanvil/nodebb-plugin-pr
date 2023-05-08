@@ -59,6 +59,8 @@ plugin.static.app.load = async (params) => {
 	router.post('/pr_dkim_upload', [multipartCheck], Dkim.uploadPOST);
 	routeHelpers.setupPageRoute(router, '/pr_dkim_register', controllers.pr_dkim_register_page);
 	router.post('/pr_dkim_register', [], controllers.pr_dkim_register_post);
+	routeHelpers.setupPageRoute(router, '/pr_invite_register', controllers.pr_invite_register_page);
+	router.post('/pr_invite_register', [], controllers.pr_invite_register_post);
 	routeHelpers.setupPageRoute(router, '/pr_email_domains', controllers.pr_email_domains);
 };
 
@@ -99,6 +101,7 @@ plugin.static.api.routes = async ({ router }) => {
 	*/
 	router.post('/pr_EmailAdd/:sk', [checkAdminSk], email_add);
 	router.post('/pr_DKIMUUID/:uuid/:sk', [checkAdminSk], Dkim.manageUUID);
+	router.post('/pr_Invite/:sk', [checkAdminSk], Register.set_invite);
 };
 
 plugin.filter.topics.get = async (payload) => {

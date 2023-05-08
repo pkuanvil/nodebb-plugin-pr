@@ -15,6 +15,7 @@
 	"register-email-domains-heading": "本站允许注册的邮件域名",
 	"register-email-domains-type": "类型",
 	"register-email-domains-domain": "域名",
+	"invite-label": "邀请码",
 	"uuid-label": "UUID",
 	"upload.file": "选择上传的文件",
 	"upload.submit": "提交"
