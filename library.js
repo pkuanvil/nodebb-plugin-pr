@@ -99,6 +99,7 @@ plugin.static.api.routes = async ({ router }) => {
 	   It will blindly trust the body content (but obviously still requires a secret key from adminstrator).
 	   It doesn't do reverse DNS and IP checks in anyway,
 	*/
+	router.get('/pr_DefaultBlockTags', async (req, res) => controllerHelpers.formatApiResponse(200, res, await blockTag.getDefaultTags()));
 	router.post('/pr_EmailAdd/:sk', [checkAdminSk], email_add);
 	router.post('/pr_DKIMUUID/:uuid/:sk', [checkAdminSk], Dkim.manageUUID);
 	router.post('/pr_Invite/:sk', [checkAdminSk], Register.set_invite);
@@ -182,6 +183,7 @@ function getFilter(tids, uid) {
 	return Promise.all([
 		topics.getTopicsFields(tids, ensureDataFields),
 		user.getSettings(uid),
+		blockTag.getDefaultTags(),
 	]);
 }
 
@@ -189,9 +191,9 @@ plugin.filter.privileges.topics.filter = async (payload) => {
 	const { privilege, uid } = payload;
 	if (privilege === 'topics:read') {
 		// Don't allow topic from future timestamp ("scheduled topic") to be shown, unless for topic owner
-		const [topicsData, settings] = await getFilter(payload.tids, uid);
+		const [topicsData, settings, defaultBlockTags] = await getFilter(payload.tids, uid);
 		payload.tids = topicsData.filter(
-			t => !Privacy.isFutureTopicorPost(t, uid) && !blockTag.hasBlockedTags(t, settings)
+			t => !Privacy.isFutureTopicorPost(t, uid) && !blockTag.hasBlockedTags(t, settings, defaultBlockTags)
 		)
 			.map(t => t.tid);
 	}
@@ -211,22 +213,22 @@ plugin.filter.privileges.topics.get = async (payload) => {
 // Fix teaser and user profile
 plugin.filter.post.getPostSummaryByPids = async (payload) => {
 	const { uid } = payload;
-	const [topicsData, settings] = await getFilter(payload.posts.map(p => p.tid), uid);
+	const [topicsData, settings, defaultBlockTags] = await getFilter(payload.posts.map(p => p.tid), uid);
 	// Don't add fields like 'tags' to payload.posts; only do a filter
 	payload.posts = payload.posts.filter((__unused__, i) => {
 		const p = topicsData[i];
-		return !Privacy.isFutureTopicorPost(p, uid) && !blockTag.hasBlockedTags(p, settings);
+		return !Privacy.isFutureTopicorPost(p, uid) && !blockTag.hasBlockedTags(p, settings, defaultBlockTags);
 	});
 	return payload;
 };
 
 plugin.filter.category.topics.get = async (payload) => {
 	const { uid } = payload;
-	const [topicsData, settings] = await getFilter(payload.topics.map(t => t.tid), uid);
+	const [topicsData, settings, defaultBlockTags] = await getFilter(payload.topics.map(t => t.tid), uid);
 	// Don't add fields like 'tags' to payload.topics; only do a filter
 	payload.topics = payload.topics.filter((__unused__, i) => {
 		const t = topicsData[i];
-		return !Privacy.isFutureTopicorPost(t, uid) && !blockTag.hasBlockedTags(t, settings);
+		return !Privacy.isFutureTopicorPost(t, uid) && !blockTag.hasBlockedTags(t, settings, defaultBlockTags);
 	});
 	return payload;
 };
@@ -235,6 +237,11 @@ plugin.filter.user.saveSettings = async (payload) => {
 	Privacy.userSaveSettings(payload);
 	blockTag.userSaveSettings(payload);
 	Excerpt.userSaveSettings(payload);
+	return payload;
+};
+
+plugin.filter.pr_user.globalDefaults = async (payload) => {
+	await blockTag.pr_userGlobalDefaults(payload);
 	return payload;
 };
 

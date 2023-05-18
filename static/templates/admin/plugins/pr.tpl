@@ -18,6 +18,10 @@
 				<label class="form-label" for="register_helo_domains">PR Register HELO Domains</label>
 				<input type="text" id="register_helo_domains" name="register_helo_domains" title="PR Register Domains" class="form-control" placeholder="domain1.com;sub1.domain2.com">
 			</div>
+			<div class="mb-3">
+				<label class="form-label" for="default_block_tags">Default block tags</label>
+				<input type="text" id="default_block_tags" name="default_block_tags" title="Default block tags" class="form-control" placeholder="">
+			</div>
 		</div>
 	</div>
 	<div class="row mb-4">
