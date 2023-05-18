@@ -17,6 +17,7 @@
 		{ "hook": "filter:user.getFields", "method": "filter.user.getFields" },
 		{ "hook": "filter:privileges.topics.filter", "method": "filter.privileges.topics.filter"},
 		{ "hook": "filter:privileges.topics.get", "method": "filter.privileges.topics.get" },
+		{ "hook": "filter:topics.filterSortedTids", "method": "filter.topics.filterSortedTids" },
 		{ "hook": "filter:post.getPostSummaryByPids", "method": "filter.post.getPostSummaryByPids" },
 		{ "hook": "filter:category.topics.get", "method": "filter.category.topics.get" },
 		{ "hook": "filter:pr_user.globalDefaults", "method": "filter.pr_user.globalDefaults" },

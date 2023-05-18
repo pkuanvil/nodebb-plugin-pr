@@ -191,9 +191,9 @@ plugin.filter.privileges.topics.filter = async (payload) => {
 	const { privilege, uid } = payload;
 	if (privilege === 'topics:read') {
 		// Don't allow topic from future timestamp ("scheduled topic") to be shown, unless for topic owner
-		const [topicsData, settings, defaultBlockTags] = await getFilter(payload.tids, uid);
+		const [topicsData] = await getFilter(payload.tids, uid);
 		payload.tids = topicsData.filter(
-			t => !Privacy.isFutureTopicorPost(t, uid) && !blockTag.hasBlockedTags(t, settings, defaultBlockTags)
+			t => !Privacy.isFutureTopicorPost(t, uid)
 		)
 			.map(t => t.tid);
 	}
@@ -207,6 +207,18 @@ plugin.filter.privileges.topics.get = async (payload) => {
 	if (Privacy.isFutureTopicorPost(t, uid)) {
 		payload.view_scheduled = false;
 	}
+	return payload;
+};
+
+// Fix /recent route
+// Note: future check already done in privileges.topics.filter
+plugin.filter.topics.filterSortedTids = async (payload) => {
+	const { uid } = payload.params;
+	const [topicsData, settings, defaultBlockTags] = await getFilter(payload.tids, uid);
+	payload.tids = topicsData.filter(
+		t => !blockTag.hasBlockedTags(t, settings, defaultBlockTags)
+	)
+		.map(t => t.tid);
 	return payload;
 };
 
