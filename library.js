@@ -18,7 +18,7 @@ const user = require.main.require('./src/user');
 const blockTag = require('./lib/blocktag');
 const controllers = require('./lib/controllers');
 const hcaptcha = require('./lib/hcaptcha');
-const { email_add } = require('./lib/email/sendmessage');
+const { email_add, email_postmark } = require('./lib/email/sendmessage');
 const Dkim = require('./lib/email/dkim');
 const Utility = require('./lib/utility/misc');
 const Privacy = require('./lib/privacy');
@@ -101,6 +101,7 @@ plugin.static.api.routes = async ({ router }) => {
 	*/
 	router.get('/pr_DefaultBlockTags', async (req, res) => controllerHelpers.formatApiResponse(200, res, await blockTag.getDefaultTags()));
 	router.post('/pr_EmailAdd/:sk', [checkAdminSk], email_add);
+	router.post('/pr_EmailAddPostMark/:sk', [checkAdminSk], email_postmark);
 	router.post('/pr_DKIMUUID/:uuid/:sk', [checkAdminSk], Dkim.manageUUID);
 	router.post('/pr_Invite/:sk', [checkAdminSk], Register.set_invite);
 };
