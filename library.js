@@ -171,6 +171,14 @@ plugin.filter.sanitize.config = Privacy.sanitizeHTML;
 
 plugin.filter.pr_sanitizehtml.config = Privacy.pr_sanitizeHTML;
 
+plugin.filter.email.params = async (payload) => {
+	const { email, params } = payload;
+	if (!params.email) {
+		params.email = email;
+	}
+	return payload;
+};
+
 plugin.filter.user.getFields = async (payload) => {
 	const { users: userArray } = payload;
 	Privacy.hideUserArrayFields(userArray);
