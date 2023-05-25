@@ -22,6 +22,7 @@
 		{ "hook": "filter:post.getPostSummaryByPids", "method": "filter.post.getPostSummaryByPids" },
 		{ "hook": "filter:category.topics.get", "method": "filter.category.topics.get" },
 		{ "hook": "filter:pr_user.globalDefaults", "method": "filter.pr_user.globalDefaults" },
+		{ "hook": "filter:user.getSettings", "method": "filter.user.getSettings" },
 		{ "hook": "filter:user.saveSettings", "method": "filter.user.saveSettings" },
 		{ "hook": "filter:admin.header.build", "method": "filter.admin.header.build" }
 	],
