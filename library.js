@@ -254,6 +254,23 @@ plugin.filter.category.topics.get = async (payload) => {
 	return payload;
 };
 
+function assign_if_undefined(target, source) {
+	for (const [key, value] of Object.entries(source)) {
+		if (typeof target[key] === 'undefined') {
+			target[key] = value;
+		}
+	}
+}
+
+plugin.filter.user.getSettings = async (payload) => {
+	const { settings } = payload;
+	const defaultSettings = {
+		pr_useExcerpt: 1,
+	};
+	assign_if_undefined(settings, defaultSettings);
+	return payload;
+};
+
 plugin.filter.user.saveSettings = async (payload) => {
 	Privacy.userSaveSettings(payload);
 	blockTag.userSaveSettings(payload);
