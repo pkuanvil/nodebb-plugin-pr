@@ -25,6 +25,7 @@ const Privacy = require('./lib/privacy');
 const Register = require('./lib/register');
 const EmailUserType = require('./lib/email/usertype');
 const Excerpt = require('./lib/excerpt');
+const b2token = require('./lib/b2token');
 
 const USE_HCAPTCHA = nconf.get('use_hcaptcha');
 
@@ -82,6 +83,20 @@ async function checkAdminSk(req, res, next) {
 	next();
 }
 
+// Enforce application/JSON for Content-Type
+// This also enforces CORS for browsers, since this header is not in "CORS safelist"
+// See https://fetch.spec.whatwg.org/#cors-safelisted-request-header
+function checkContentType(req, res, next) {
+	if (!req.header('Content-Type') || !req.header('Content-Type').startsWith('application/json')) {
+		return controllerHelpers.formatApiResponse(
+			403,
+			res,
+			Error(`Invalid HTTP header "Content-Type: ${req.header('Content-Type')}"`)
+		);
+	}
+	next();
+}
+
 plugin.static.api.routes = async ({ router }) => {
 	// Don't use routeHelpers.setupApiRoute() since we don't want bear authentication token or csrf token here
 	router.get('/pr_pubkey', async (req, res) => {
@@ -104,6 +119,7 @@ plugin.static.api.routes = async ({ router }) => {
 	router.post('/pr_EmailAddPostMark/:sk', [checkAdminSk], email_postmark);
 	router.post('/pr_DKIMUUID/:uuid/:sk', [checkAdminSk], Dkim.manageUUID);
 	router.post('/pr_Invite/:sk', [checkAdminSk], Register.set_invite);
+	router.post('/pr_B2Token', [checkContentType], b2token.handler);
 };
 
 plugin.filter.topics.get = async (payload) => {
