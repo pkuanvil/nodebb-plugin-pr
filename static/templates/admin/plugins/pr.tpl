@@ -25,6 +25,15 @@
 		</div>
 	</div>
 	<div class="row mb-4">
+		<div class="col-sm-2 col-12 settings-header">System Pages</div>
+		<div class="col-sm-10 col-12">
+			<div class="mb-3">
+				<label class="form-label" for="help">help</label>
+				<textarea id="help" class="form-control" name="help"></textarea>
+			</div>
+		</div>
+	</div>
+	<div class="row mb-4">
 		<div class="col-sm-2 col-12 settings-header">General</div>
 		<div class="col-sm-10 col-12">
 			<p class="lead">

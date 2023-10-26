@@ -63,6 +63,8 @@ plugin.static.app.load = async (params) => {
 	routeHelpers.setupPageRoute(router, '/pr_invite_register', controllers.pr_invite_register_page);
 	router.post('/pr_invite_register', [], controllers.pr_invite_register_post);
 	routeHelpers.setupPageRoute(router, '/pr_email_domains', controllers.pr_email_domains);
+
+	routeHelpers.setupPageRoute(router, '/help', controllers.help);
 };
 
 plugin.static.app.preload = async (params) => {
