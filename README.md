@@ -5,6 +5,7 @@ This is a NodeBB plugin private to PKU Anvil: https://www.pkuanvil.com. Current 
 * Email Register
   - Register request (the encrypted message is simplely a RSA public key encrytion of username and password)
   - DKIM (Verify an email which has DKIM "To:" signature)
+    - We apply a patch to mailauth (see folder patches/) which skips body verify, as we are not interested in body anyway
 * hcaptcha (not yet enabled at PKU Anvil, although the code is prepared)
 * Privacy:
   - Don't show register time
