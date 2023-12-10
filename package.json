@@ -22,7 +22,9 @@
 		"url": "https://github.com/pkuanvil/nodebb-plugin-pr/issues"
 	},
 	"dependencies": {
-		"mailauth": "^4.1.0"
+		"mailauth": "^4.1.0",
+		"markdown-it-anchor": "^8.6.7",
+		"markdown-it-toc-done-right": "^4.2.0"
 	},
 	"devDependencies": {
 		"@commitlint/cli": "^17.3.0",

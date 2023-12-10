@@ -12,6 +12,7 @@
 		{ "hook": "filter:register.interstitial", "method": "filter.register.interstitial" },
 		{ "hook": "action:pr_register.abort", "method": "action.pr_register.abort" },
 		{ "hook": "action:user.create", "method": "action.user.create" },
+		{ "hook": "action:markdown.updateParserRules", "method": "action.markdown.updateParserRules" },
 		{ "hook": "filter:sanitize.config", "method": "filter.sanitize.config" },
 		{ "hook": "filter:pr_sanitizehtml.config", "method": "filter.pr_sanitizehtml.config" },
 		{ "hook": "filter:email.params", "method": "filter.email.params" },

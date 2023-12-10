@@ -6,6 +6,8 @@ const buffer = require.main.require('buffer');
 const { Buffer } = buffer;
 const _ = require.main.require('lodash');
 const winston = require.main.require('winston');
+const markdown_anchor = require.main.require('markdown-it-anchor');
+const markdown_toc = require.main.require('markdown-it-toc-done-right');
 
 const __multipart = require.main.require('connect-multiparty');
 const TMP_UPLOAD_DIR = process.platform === 'linux' ? '/var/tmp' : undefined;
@@ -183,6 +185,12 @@ plugin.action.user.create = async ({ user: createData, data: userData }) => {
 	} catch (e) {
 		winston.error(e.stack);
 	}
+};
+
+plugin.action.markdown.updateParserRules = async (parser) => {
+	parser.use(markdown_anchor, {
+		permalink: markdown_anchor.permalink.headerLink(),
+	}).use(markdown_toc, {});
 };
 
 plugin.filter.sanitize.config = Privacy.sanitizeHTML;
