@@ -143,6 +143,15 @@ plugin.filter.teasers.get = async (payload) => {
 	return payload;
 };
 
+plugin.filter.notifications.create = async (payload) => {
+	const { data } = payload;
+	const maxLengthStr = (await meta.settings.getOne('pr', 'notification_max_length')) || 140;
+	if (data.bodyLong && typeof data.bodyLong === 'string') {
+		data.bodyLong = Utility.truncString(data.bodyLong, parseInt(maxLengthStr, 10));
+	}
+	return payload;
+};
+
 plugin.filter.admin.header.build = (header) => {
 	header.plugins.push({
 		route: '/plugins/pr',

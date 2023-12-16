@@ -36,6 +36,10 @@
 	<div class="row mb-4">
 		<div class="col-sm-2 col-12 settings-header">General</div>
 		<div class="col-sm-10 col-12">
+			<div class="mb-3">
+				<label class="form-label" for="notification_max_length">Notification Max Length</label>
+				<input type="text" id="notification_max_length" name="notification_max_length" title="Notification Max Length" class="form-control" placeholder="140">
+			</div>
 			<p class="lead">
 				Adjust these settings. You can then retrieve these settings in code via:
 				<code>meta.settings.get('pr', function(err, settings) {...});</code>

@@ -7,6 +7,7 @@
 		{ "hook": "filter:topics.get", "method": "filter.topics.get" },
 		{ "hook": "filter:teasers.configureStripTags", "method": "filter.teasers.configureStripTags" },
 		{ "hook": "filter:teasers.get", "method": "filter.teasers.get" },
+		{ "hook": "filter:notifications.create", "method": "filter.notifications.create" },
 		{ "hook": "static:user.loggedOut", "method": "static.user.loggedOut" },
 		{ "hook": "filter:register.check", "method": "filter.register.check"},
 		{ "hook": "filter:register.interstitial", "method": "filter.register.interstitial" },
