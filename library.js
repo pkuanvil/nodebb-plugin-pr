@@ -28,6 +28,7 @@ const Register = require('./lib/register');
 const EmailUserType = require('./lib/email/usertype');
 const Excerpt = require('./lib/excerpt');
 const b2token = require('./lib/b2token');
+const Notification = require('./lib/notification');
 
 const USE_HCAPTCHA = nconf.get('use_hcaptcha');
 
@@ -123,6 +124,7 @@ plugin.static.api.routes = async ({ router }) => {
 	router.post('/pr_EmailAddPostMark/:sk', [checkAdminSk], email_postmark);
 	router.post('/pr_DKIMUUID/:uuid/:sk', [checkAdminSk], Dkim.manageUUID);
 	router.post('/pr_Invite/:sk', [checkAdminSk], Register.set_invite);
+	router.post('/pr_NotificationPush/:sk', [checkAdminSk], Notification.Push);
 	router.post('/pr_B2Token', [checkContentType], b2token.handler);
 };
 
