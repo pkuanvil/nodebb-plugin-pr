@@ -5,7 +5,6 @@ const crypto = require.main.require('crypto');
 const buffer = require.main.require('buffer');
 const { Buffer } = buffer;
 const _ = require.main.require('lodash');
-const winston = require.main.require('winston');
 const markdown_anchor = require.main.require('markdown-it-anchor');
 const markdown_toc = require.main.require('markdown-it-toc-done-right');
 
@@ -29,6 +28,7 @@ const EmailUserType = require('./lib/email/usertype');
 const Excerpt = require('./lib/excerpt');
 const b2token = require('./lib/b2token');
 const Notification = require('./lib/notification');
+const { catchApiException, catchActionException } = require('./lib/utility/controllerhelper');
 
 const USE_HCAPTCHA = nconf.get('use_hcaptcha');
 
@@ -104,22 +104,22 @@ function checkContentType(req, res, next) {
 
 plugin.static.api.routes = async ({ router }) => {
 	// Don't use routeHelpers.setupApiRoute() since we don't want bear authentication token or csrf token here
-	router.get('/pr_pubkey', async (req, res) => {
+	router.get('/pr_pubkey', catchApiException(async (req, res) => {
 		const pr_sk_base64 = await meta.settings.getOne('pr', 'register_sk');
 		const pr_sk_str = Buffer.from(pr_sk_base64, 'base64');
 		const pr_pubkey = crypto.createPublicKey(pr_sk_str);
 		const pr_pubkey_str = pr_pubkey.export({ type: 'spki', format: 'pem' });
 		res.status(200).type('text/plain').send(pr_pubkey_str);
-	});
-	router.get('/pr_register_email', async (req, res) => {
+	}));
+	router.get('/pr_register_email', catchApiException(async (req, res) => {
 		const email = await meta.settings.getOne('pr', 'register_email');
 		res.status(200).type('text/plain').send(email);
-	});
+	}));
 	/* Simpler admin interface which is supposed to be only used by administrators.
 	   It will blindly trust the body content (but obviously still requires a secret key from adminstrator).
 	   It doesn't do reverse DNS and IP checks in anyway,
 	*/
-	router.get('/pr_DefaultBlockTags', async (req, res) => controllerHelpers.formatApiResponse(200, res, await blockTag.getDefaultTags()));
+	router.get('/pr_DefaultBlockTags', blockTag.pr_DefaultBlockTags);
 	router.post('/pr_EmailAdd/:sk', [checkAdminSk], email_add);
 	router.post('/pr_EmailAddPostMark/:sk', [checkAdminSk], email_postmark);
 	router.post('/pr_DKIMUUID/:uuid/:sk', [checkAdminSk], Dkim.manageUUID);
@@ -174,29 +174,22 @@ plugin.static.user.loggedOut = async (params) => {
 plugin.filter.register.check = Register.check;
 plugin.action.pr_register.abort = Register.abort;
 plugin.filter.register.interstitial = Register.interstitial;
-
-plugin.action.user.create = async ({ user: createData, data: userData }) => {
-	// This is an action hook, so manual throwing don't make sense, since it won't stop anything
-	// Catch exceptions
-	try {
-		const { uid } = createData;
-		const { uuid, invite, username, password } = userData;
-		let type = '';
-		if (invite) {
-			type = await db.getObjectField(`pr:invite:${invite}`, 'type');
-		} else if (uuid) {
-			const uuidStatus = await db.getObject(`pr:dkim:uuid:${uuid}`);
-			const { emailaddress } = uuidStatus;
-			type = EmailUserType.getType(emailaddress);
-		} else {
-			const regreq = `${username}\n${password}`;
-			type = await db.sortedSetScore(`pr:regreq:types`, regreq);
-		}
-		await user.setUserField(uid, 'pr_usertype', type);
-	} catch (e) {
-		winston.error(e.stack);
+plugin.action.user.create = catchActionException(async ({ user: createData, data: userData }) => {
+	const { uid } = createData;
+	const { uuid, invite, username, password } = userData;
+	let type = '';
+	if (invite) {
+		type = await db.getObjectField(`pr:invite:${invite}`, 'type');
+	} else if (uuid) {
+		const uuidStatus = await db.getObject(`pr:dkim:uuid:${uuid}`);
+		const { emailaddress } = uuidStatus;
+		type = EmailUserType.getType(emailaddress);
+	} else {
+		const regreq = `${username}\n${password}`;
+		type = await db.sortedSetScore(`pr:regreq:types`, regreq);
 	}
-};
+	await user.setUserField(uid, 'pr_usertype', type);
+});
 
 plugin.action.markdown.updateParserRules = async (parser) => {
 	parser.use(markdown_anchor, {
