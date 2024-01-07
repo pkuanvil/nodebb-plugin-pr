@@ -5,6 +5,7 @@ const crypto = require.main.require('crypto');
 const buffer = require.main.require('buffer');
 const { Buffer } = buffer;
 const _ = require.main.require('lodash');
+const validator = require.main.require('validator');
 const markdown_anchor = require.main.require('markdown-it-anchor');
 const markdown_toc = require.main.require('markdown-it-toc-done-right');
 
@@ -142,6 +143,20 @@ plugin.filter.teasers.get = async (payload) => {
 	const { teasers } = payload;
 	// This requires filter:teasers.configureStripTags to correctly strip ALL HTML
 	await Excerpt.truncTeasers(teasers);
+	return payload;
+};
+
+plugin.filter.pr_navigation.get = async (payload) => {
+	const { navigations, uid } = payload;
+	const userSlug = await user.getUserField(uid, 'userslug');
+	for (const navigation of navigations) {
+		if (navigation.originalRoute === '/chats') {
+			// Save a HTTP redirect here
+			const routeRedirect = `/user/${userSlug}/chats`;
+			navigation.originalRoute = routeRedirect;
+			navigation.route = validator.escape(routeRedirect);
+		}
+	}
 	return payload;
 };
 
